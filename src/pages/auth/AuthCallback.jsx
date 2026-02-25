@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 
 /**
@@ -8,8 +7,9 @@ import { useAuth } from '../../context/AuthContext';
  *
  * Flujo:
  * 1. Google redirige aquí con el token en el hash (#access_token=...)
- * 2. Esperamos a que Supabase procese el hash vía onAuthStateChange
- * 3. Una vez que el perfil se carga en AuthContext, redirigimos al destino correcto
+ * 2. Supabase detecta el hash vía onAuthStateChange (detectSessionInUrl: true)
+ * 3. AuthContext setea user y fetchProfile → loading pasa a false
+ * 4. Redirigimos al destino correcto
  *
  * IMPORTANTE: esta URL debe estar en la whitelist de Supabase:
  *   Dashboard → Authentication → URL Configuration → Redirect URLs
@@ -18,13 +18,13 @@ import { useAuth } from '../../context/AuthContext';
  *            http://localhost:5173/auth/callback
  */
 export const AuthCallback = () => {
-    const { profile, loading } = useAuth();
+    const { user, profile, loading } = useAuth();
     const navigate = useNavigate();
     const [timedOut, setTimedOut] = useState(false);
 
+    // Red de seguridad: si en 10 segundos no hay sesión, algo falló
     useEffect(() => {
-        // Si en 8 segundos no hay sesión, algo falló — mandar al login
-        const timer = setTimeout(() => setTimedOut(true), 8000);
+        const timer = setTimeout(() => setTimedOut(true), 10000);
         return () => clearTimeout(timer);
     }, []);
 
@@ -34,16 +34,23 @@ export const AuthCallback = () => {
             return;
         }
 
-        // Esperar a que loading termine (AuthContext terminó de fetchProfile)
+        // Esperar a que AuthContext termine de inicializar
         if (loading) return;
 
+        // Esperar a que onAuthStateChange establezca la sesión OAuth.
+        // getSession() puede devolver null en el primer render mientras
+        // Supabase procesa el hash #access_token de la URL. El timeout
+        // actúa como red de seguridad si la sesión nunca llega.
+        if (!user) return;
+
+        // Sesión establecida — redirigir según rol
         if (profile?.role) {
             navigate(`/dashboard/${profile.role}`, { replace: true });
         } else {
-            // Usuario nuevo via OAuth — sin rol aún, completar onboarding
+            // Usuario sin perfil completo (nuevo via OAuth)
             navigate('/select-profile', { replace: true });
         }
-    }, [profile, loading, timedOut, navigate]);
+    }, [user, profile, loading, timedOut, navigate]);
 
     return (
         <div className="h-screen flex flex-col items-center justify-center gap-4">
