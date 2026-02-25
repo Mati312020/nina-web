@@ -10,6 +10,7 @@ import { CreateProfilePage } from './pages/auth/CreateProfilePage';
 import { FamilyDashboard } from './pages/dashboard/FamilyDashboard';
 import { NannyDashboard } from './pages/dashboard/NannyDashboard';
 import { PaymentResult } from './pages/PaymentResult';
+import { AuthCallback } from './pages/auth/AuthCallback';
 
 const Spinner = () => (
     <div className="h-screen flex items-center justify-center">
@@ -78,6 +79,9 @@ function App() {
                         {/* Dashboards por rol */}
                         <Route path="/dashboard/family" element={<RoleDashboard role="family" />} />
                         <Route path="/dashboard/nanny" element={<RoleDashboard role="nanny" />} />
+
+                        {/* Callback OAuth (Google, etc.) */}
+                        <Route path="/auth/callback" element={<AuthCallback />} />
 
                         {/* Resultado de pago de suscripción */}
                         <Route path="/payment/success" element={<PaymentResult outcome="success" />} />
