@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
-import { Heart, Shield, MapPin, Star, UserCheck, Clock } from 'lucide-react';
+import { Heart, CreditCard, MapPin, Star, UserCheck, Clock } from 'lucide-react';
 import { Hero } from '../components/sections/Hero';
 import logo from '../assets/logo.png';
 
@@ -23,9 +23,9 @@ export const LandingPage = () => {
 
                     <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
                         <FeatureCard
-                            icon={<Shield className="w-8 h-8 text-primary" />}
-                            title="Verificación Completa"
-                            description="Todas las niñeras pasan por un riguroso proceso de validación de identidad y antecedentes."
+                            icon={<CreditCard className="w-8 h-8 text-primary" />}
+                            title="Pago Seguro con Mercado Pago"
+                            description="Pagá de forma segura y sin complicaciones a través de Mercado Pago. Aceptamos tarjetas, transferencias y más."
                         />
                         <FeatureCard
                             icon={<MapPin className="w-8 h-8 text-secondary" />}
