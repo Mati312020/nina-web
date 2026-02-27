@@ -23,7 +23,10 @@ export const Footer = () => {
                 </div>
 
                 <div className="flex justify-center items-center gap-2 text-primary font-bold text-xl mb-4">
-                    <img src={logo} alt="Nina Logo" className="h-8 w-auto" /> Nina
+                    <div className="bg-primary p-1 rounded-lg inline-flex">
+                        <img src={logo} alt="Nina Logo" className="h-7 w-auto" />
+                    </div>
+                    Nina
                 </div>
                 <p className="text-gray-400 text-sm font-nunito">
                     © {new Date().getFullYear()} Nina App. Todos los derechos reservados.

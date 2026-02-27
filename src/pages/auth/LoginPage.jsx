@@ -53,7 +53,9 @@ export const LoginPage = () => {
         <div className="min-h-[80vh] flex items-center justify-center p-4 bg-gray-50">
             <Card className="w-full max-w-md p-8 border-none shadow-xl">
                 <div className="text-center mb-8">
-                    <img src={logo} alt="Nina Logo" className="h-12 w-auto mx-auto mb-4" />
+                    <div className="bg-primary p-3 rounded-2xl inline-flex mb-4">
+                        <img src={logo} alt="Nina Logo" className="h-12 w-auto" />
+                    </div>
                     <h2 className="text-2xl font-bold text-gray-900 font-poppins">Bienvenido a Nina</h2>
                     <p className="text-gray-500 mt-2 font-nunito">Inicia sesión para continuar</p>
                 </div>

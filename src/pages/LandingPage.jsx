@@ -65,7 +65,9 @@ export const LandingPage = () => {
                             <div className="relative bg-white p-4 rounded-[3rem] shadow-2xl border-8 border-gray-900 max-w-xs mx-auto aspect-[9/19] flex flex-col justify-center items-center overflow-hidden">
                                 <div className="absolute top-0 w-32 h-6 bg-gray-900 rounded-b-xl z-10"></div>
                                 <div className="text-center p-6">
-                                    <img src={logo} alt="Nina Logo" className="h-16 w-auto mx-auto mb-4 animate-pulse" />
+                                    <div className="bg-primary p-3 rounded-2xl inline-flex mb-4 animate-pulse">
+                                        <img src={logo} alt="Nina Logo" className="h-16 w-auto" />
+                                    </div>
                                     <h3 className="text-2xl font-bold text-gray-800 mb-2">Nina</h3>
                                     <p className="text-sm text-gray-500">Tu niñera de confianza</p>
                                 </div>

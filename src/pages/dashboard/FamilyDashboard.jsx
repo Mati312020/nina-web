@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Calendar, Clock, MapPin } from 'lucide-react';
+import { Plus, Calendar, Clock, MapPin, Info } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { useSubscription } from '../../hooks/useSubscription';
@@ -180,6 +180,15 @@ export const FamilyDashboard = () => {
                         </div>
                     )}
                 </section>
+            </div>
+
+            {/* Info: rankings desde nina-app */}
+            <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-start gap-3">
+                <Info size={16} className="text-primary flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-gray-600 font-nunito">
+                    <strong>Rankings y reseñas:</strong> Los puntajes y comentarios de las niñeras
+                    se actualizan desde la aplicación móvil <strong>Nina App</strong>.
+                </p>
             </div>
 
             {/* Modals */}

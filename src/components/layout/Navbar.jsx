@@ -23,7 +23,9 @@ export const Navbar = () => {
         <nav className="bg-primary/10 backdrop-blur-md sticky top-0 z-50 border-b border-white/20">
             <div className="container mx-auto px-4 h-20 flex justify-between items-center">
                 <Link to="/" className="flex items-center gap-2">
-                    <img src={logo} alt="Nina Logo" className="h-12 w-auto" />
+                    <div className="bg-primary p-1.5 rounded-xl">
+                        <img src={logo} alt="Nina Logo" className="h-10 w-auto" />
+                    </div>
                 </Link>
 
                 <div className="flex items-center gap-4">
