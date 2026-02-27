@@ -38,11 +38,14 @@ export const LoginPage = () => {
     };
 
     const handleGoogleLogin = async () => {
+        setError('');
         try {
             await googleLogin();
-            // Auth flow continues in callback or listener
+            // Si llega acá sin redirigir, mostrar mensaje de espera
         } catch (err) {
-            setError('Error iniciando sesión con Google.');
+            // Mostrar el mensaje real de Supabase para poder diagnosticar
+            setError(err.message || 'Error iniciando sesión con Google.');
+            console.error('Google OAuth error:', err);
         }
     };
 
