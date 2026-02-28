@@ -89,6 +89,15 @@ export const FamilyDashboard = () => {
             {/* Contenido */}
             <div className="max-w-6xl mx-auto px-6 py-8 space-y-12">
 
+                {/* Info: rankings desde nina-app */}
+                <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-start gap-3">
+                    <Info size={16} className="text-primary flex-shrink-0 mt-0.5" />
+                    <p className="text-sm text-gray-600 font-nunito">
+                        <strong>Rankings y reseñas:</strong> Los puntajes y comentarios de las niñeras
+                        se actualizan desde la aplicación móvil <strong>Nina App</strong>.
+                    </p>
+                </div>
+
                 {/* Carrusel: niñeras disponibles */}
                 <section>
                     <Carousel title="Niñeras Disponibles">
@@ -180,15 +189,6 @@ export const FamilyDashboard = () => {
                         </div>
                     )}
                 </section>
-            </div>
-
-            {/* Info: rankings desde nina-app */}
-            <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-start gap-3">
-                <Info size={16} className="text-primary flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-gray-600 font-nunito">
-                    <strong>Rankings y reseñas:</strong> Los puntajes y comentarios de las niñeras
-                    se actualizan desde la aplicación móvil <strong>Nina App</strong>.
-                </p>
             </div>
 
             {/* Modals */}

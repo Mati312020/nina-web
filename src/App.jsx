@@ -11,6 +11,7 @@ import { FamilyDashboard } from './pages/dashboard/FamilyDashboard';
 import { NannyDashboard } from './pages/dashboard/NannyDashboard';
 import { PaymentResult } from './pages/PaymentResult';
 import { AuthCallback } from './pages/auth/AuthCallback';
+import MobileAuthCallback from './pages/auth/MobileAuthCallback';
 
 const Spinner = () => (
     <div className="h-screen flex items-center justify-center">
@@ -80,8 +81,11 @@ function App() {
                         <Route path="/dashboard/family" element={<RoleDashboard role="family" />} />
                         <Route path="/dashboard/nanny" element={<RoleDashboard role="nanny" />} />
 
-                        {/* Callback OAuth (Google, etc.) */}
+                        {/* Callback OAuth web (Google en browser) */}
                         <Route path="/auth/callback" element={<AuthCallback />} />
+
+                        {/* Relay OAuth para la app mobile (nina-app) */}
+                        <Route path="/auth/mobile-callback" element={<MobileAuthCallback />} />
 
                         {/* Resultado de pago de suscripción */}
                         <Route path="/payment/success" element={<PaymentResult outcome="success" />} />
