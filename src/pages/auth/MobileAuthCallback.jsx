@@ -3,43 +3,66 @@ import { useEffect, useState } from 'react';
 /**
  * Relay de OAuth para la app mobile (nina-app).
  *
- * Flujo:
- * 1. La app abre Google OAuth con redirectTo = esta página + ?app_redirect=exp://...
- * 2. Supabase redirige aquí con ?code=PKCE_CODE&app_redirect=exp://...
- * 3. Esta página simplemente reenvía el code al app via deep link:
- *    exp://IP:PORT/--/auth/callback?code=PKCE_CODE
- * 4. ASWebAuthenticationSession (iOS) / Chrome Custom Tab (Android) intercepta el exp://
- * 5. La app llama exchangeCodeForSession(code) con su propio code_verifier
+ * Flujo PKCE (principal):
+ * 1. La app abre Google OAuth con redirectTo = esta página (HTTPS)
+ * 2. Supabase GoTrue redirige aquí con ?code=PKCE_CODE
+ * 3. Esta página redirige al app via deep link: nina://auth/callback?code=PKCE_CODE
+ * 4. Chrome Custom Tab (Android) / ASWebAuthenticationSession (iOS) intercepta nina://
+ * 5. La app llama exchangeCodeForSession(code) con su propio code_verifier de AsyncStorage
  *
- * La app mobile hace el exchange (no este componente) porque el code_verifier
- * está en AsyncStorage del app, no en localStorage del browser.
+ * Flujo Implícito (fallback):
+ * 1. Supabase redirige aquí con #access_token=...&refresh_token=...
+ * 2. Esta página parsea el hash y redirige: nina://auth/callback?access_token=...&refresh_token=...
+ * 3. La app llama setSession({ access_token, refresh_token })
+ *
+ * IMPORTANTE: No se necesita app_redirect porque el scheme "nina://" es fijo
+ * (definido en app.json del proyecto mobile). En Expo Go, nina:// también
+ * funciona porque el scheme está registrado en la configuración de la app.
  */
+
+const MOBILE_SCHEME = 'nina';
+
 const MobileAuthCallback = () => {
     const [status, setStatus] = useState('processing'); // 'processing' | 'redirecting' | 'error'
 
     useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        const code = params.get('code');
-        const appRedirect = params.get('app_redirect'); // URL decodificada automáticamente por URLSearchParams
+        // Leer parámetros de ambas fuentes
+        const queryParams = new URLSearchParams(window.location.search);
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
 
-        if (!code) {
-            console.error('[MobileAuthCallback] No se recibió code de Supabase');
-            setStatus('error');
-            return;
+        // PKCE flow: code viene en query params (?code=...)
+        const code = queryParams.get('code');
+
+        // Implicit flow: tokens vienen en hash fragment (#access_token=...&refresh_token=...)
+        const access_token = hashParams.get('access_token');
+        const refresh_token = hashParams.get('refresh_token');
+
+        let mobileUrl = null;
+
+        if (code) {
+            // PKCE: reenviar el code al app
+            mobileUrl = `${MOBILE_SCHEME}://auth/callback?code=${encodeURIComponent(code)}`;
+        } else if (access_token) {
+            // Implicit: reenviar los tokens al app
+            const params = new URLSearchParams();
+            params.set('access_token', access_token);
+            if (refresh_token) params.set('refresh_token', refresh_token);
+            mobileUrl = `${MOBILE_SCHEME}://auth/callback?${params.toString()}`;
         }
 
-        if (!appRedirect) {
-            console.error('[MobileAuthCallback] No se recibió app_redirect');
+        if (mobileUrl) {
+            console.log('[MobileAuthCallback] Redirigiendo al app:', mobileUrl.slice(0, 80));
+            setStatus('redirecting');
+            // Redirigir al deep link del app mobile
+            // En Chrome Custom Tab (Android): dispara intent → el app lo intercepta
+            // En ASWebAuthenticationSession (iOS): el scheme nina:// cierra la sesión
+            window.location.href = mobileUrl;
+        } else {
+            console.error('[MobileAuthCallback] No se encontró code ni tokens en la URL');
+            console.error('[MobileAuthCallback] search:', window.location.search);
+            console.error('[MobileAuthCallback] hash:', window.location.hash);
             setStatus('error');
-            return;
         }
-
-        // Reenviar el code al app mobile via deep link
-        // El app hará el exchangeCodeForSession con su propio code_verifier
-        const mobileUrl = `${appRedirect}?code=${encodeURIComponent(code)}`;
-        console.log('[MobileAuthCallback] Redirigiendo al app:', mobileUrl);
-        setStatus('redirecting');
-        window.location.href = mobileUrl;
     }, []);
 
     return (
