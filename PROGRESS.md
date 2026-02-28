@@ -4,8 +4,8 @@
 > Al iniciar una nueva sesión de trabajo, leer este archivo primero.
 > El campo "Próximo paso" indica exactamente dónde continuar.
 
-_Última actualización: 2026-02-25_
-_Próximo paso: **COMPLETADO** — Verificar deploy del backend en Render y hacer primer push a GitHub_
+_Última actualización: 2026-02-27_
+_Próximo paso: **Tests de integración E2E** — Verificar flujo completo: login → dashboard → publicar vacante → suscribir → ver contacto_
 
 ---
 
@@ -20,7 +20,7 @@ _Próximo paso: **COMPLETADO** — Verificar deploy del backend en Render y hace
 - [x] `config.py` — Vars: SUBSCRIPTION_AMOUNT_ARS, WEB_*_URL, MP_SUBSCRIPTION_WEBHOOK_URL
 - [x] `main.py` — Imports + migraciones SQL + registro de routers
 - [x] `.env` — ALLOWED_ORIGINS actualizado con nina-web y localhost:5173
-- [ ] **Backend deployado en Render y `/docs` verificado** ← PENDIENTE
+- [x] **Backend deployado en Render** — `/long-term/vacancies` y `/long-term/nannies` retornan datos reales
 
 ## BLOQUE B — Frontend Infraestructura (D:\proyectos\web_nina\src)
 
@@ -53,17 +53,16 @@ _Próximo paso: **COMPLETADO** — Verificar deploy del backend en Render y hace
 ## BLOQUE F — Infraestructura Proyecto
 
 - [x] `PROGRESS.md` — Este archivo
-- [ ] **Git init + commit inicial** ← PENDIENTE
-- [ ] **GitHub repo "nina-web" creado y pusheado** ← PENDIENTE
+- [x] **Git init + múltiples commits** — historial completo en master
+- [x] **GitHub repo "nina-web" pusheado** — https://github.com/Mati312020/nina-web
 
 ---
 
 ## Tests de Integración
 
-- [ ] `GET /long-term/vacancies` retorna `[]` (sin datos)
-- [ ] `POST /long-term/vacancies` crea vacante
-- [ ] `GET /long-term/nannies` lista niñeras disponibles
-- [ ] Datos de contacto son `null` sin suscripción activa
+- [x] `GET /long-term/vacancies` — retorna 3 vacantes reales con datos de familias
+- [x] `GET /long-term/nannies` — retorna 1 niñera (Lorena, 5 años exp., rating 4.43)
+- [x] Datos de contacto son `null` sin suscripción activa ✓ (verificado en respuesta API)
 - [ ] `POST /long-term/subscribe` retorna `checkout_url`
 - [ ] Webhook `/webhook/mp-subscription` activa suscripción
 - [ ] Datos de contacto visibles post-suscripción
@@ -90,3 +89,5 @@ _Próximo paso: **COMPLETADO** — Verificar deploy del backend en Render y hace
 - El polling en `PaymentResult` hace hasta 4 intentos cada 3s para verificar el webhook
 - El carrusel oculta la scrollbar via `scrollbarWidth: none` (CSS)
 - `NannyDashboard` usa `GET /long-term/nanny-availability/mine` que retorna `{}` si no hay entrada activa
+- `MobileAuthCallback` (`/auth/mobile-callback`) es relay OAuth para nina-app: recibe `?code=&app_redirect=exp://` y redirige al deep link
+- Los banners "Info" fueron movidos DENTRO del contenedor `max-w-6xl` (fix layout full-width)
