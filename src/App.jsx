@@ -12,6 +12,7 @@ import { NannyDashboard } from './pages/dashboard/NannyDashboard';
 import { PaymentResult } from './pages/PaymentResult';
 import { AuthCallback } from './pages/auth/AuthCallback';
 import MobileAuthCallback from './pages/auth/MobileAuthCallback';
+import MobileAuthStart from './pages/auth/MobileAuthStart';
 
 const Spinner = () => (
     <div className="h-screen flex items-center justify-center">
@@ -85,6 +86,7 @@ function App() {
                         <Route path="/auth/callback" element={<AuthCallback />} />
 
                         {/* Relay OAuth para la app mobile (nina-app) */}
+                        <Route path="/auth/mobile-start" element={<MobileAuthStart />} />
                         <Route path="/auth/mobile-callback" element={<MobileAuthCallback />} />
 
                         {/* Resultado de pago de suscripción */}

@@ -4,66 +4,81 @@ import { useEffect, useState } from 'react';
  * Relay de OAuth para la app mobile (nina-app).
  *
  * Flujo PKCE (principal):
- * 1. La app abre Google OAuth con redirectTo = esta página (HTTPS)
- * 2. Supabase GoTrue redirige aquí con ?code=PKCE_CODE
- * 3. Esta página redirige al app via deep link: nina://auth/callback?code=PKCE_CODE
- * 4. Chrome Custom Tab (Android) / ASWebAuthenticationSession (iOS) intercepta nina://
- * 5. La app llama exchangeCodeForSession(code) con su propio code_verifier de AsyncStorage
+ * 1. GoTrue redirige aquí con ?code=PKCE_CODE después del Google OAuth
+ * 2. Lee app_redirect de localStorage (guardado por MobileAuthStart)
+ * 3. Redirige al deep link: exp://IP:PORT/--/auth/callback?code=PKCE_CODE
+ * 4. Chrome Custom Tab detecta exp:// → intent → Expo Go intercepta
+ * 5. openAuthSessionAsync retorna → el app intercambia code por sesión
  *
  * Flujo Implícito (fallback):
- * 1. Supabase redirige aquí con #access_token=...&refresh_token=...
- * 2. Esta página parsea el hash y redirige: nina://auth/callback?access_token=...&refresh_token=...
- * 3. La app llama setSession({ access_token, refresh_token })
+ * 1. GoTrue redirige aquí con #access_token=...&refresh_token=...
+ * 2. Lee app_redirect de localStorage
+ * 3. Redirige al deep link con los tokens como query params
  *
- * IMPORTANTE: No se necesita app_redirect porque el scheme "nina://" es fijo
- * (definido en app.json del proyecto mobile). En Expo Go, nina:// también
- * funciona porque el scheme está registrado en la configuración de la app.
+ * IMPORTANTE: app_redirect se guarda en localStorage porque GoTrue puede
+ * descartar/double-encodear query params extra en el redirect_to.
+ * localStorage persiste en el mismo origin (nina-web.onrender.com) a través
+ * de todas las navegaciones dentro del Chrome Custom Tab.
  */
-
-const MOBILE_SCHEME = 'nina';
-
 const MobileAuthCallback = () => {
-    const [status, setStatus] = useState('processing'); // 'processing' | 'redirecting' | 'error'
+    const [status, setStatus] = useState('processing');
 
     useEffect(() => {
-        // Leer parámetros de ambas fuentes
+        // Leer el deep link de retorno guardado por MobileAuthStart
+        const appRedirect = localStorage.getItem('nina_app_redirect');
+        localStorage.removeItem('nina_app_redirect'); // Limpiar después de leer
+
+        if (!appRedirect) {
+            console.error('[MobileAuthCallback] No se encontró app_redirect en localStorage');
+            // Fallback: intentar leer de query params (compatibilidad legacy)
+            const fallback = new URLSearchParams(window.location.search).get('app_redirect');
+            if (!fallback) {
+                setStatus('error');
+                return;
+            }
+            handleRedirect(fallback);
+            return;
+        }
+
+        handleRedirect(appRedirect);
+    }, []);
+
+    function handleRedirect(appRedirect) {
         const queryParams = new URLSearchParams(window.location.search);
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
 
-        // PKCE flow: code viene en query params (?code=...)
+        // PKCE: code en query params
         const code = queryParams.get('code');
-
-        // Implicit flow: tokens vienen en hash fragment (#access_token=...&refresh_token=...)
+        // Implicit: tokens en hash
         const access_token = hashParams.get('access_token');
         const refresh_token = hashParams.get('refresh_token');
 
         let mobileUrl = null;
 
         if (code) {
-            // PKCE: reenviar el code al app
-            mobileUrl = `${MOBILE_SCHEME}://auth/callback?code=${encodeURIComponent(code)}`;
+            // PKCE: agregar code como query param al deep link
+            const separator = appRedirect.includes('?') ? '&' : '?';
+            mobileUrl = `${appRedirect}${separator}code=${encodeURIComponent(code)}`;
         } else if (access_token) {
-            // Implicit: reenviar los tokens al app
+            // Implicit: agregar tokens como query params
+            const separator = appRedirect.includes('?') ? '&' : '?';
             const params = new URLSearchParams();
             params.set('access_token', access_token);
             if (refresh_token) params.set('refresh_token', refresh_token);
-            mobileUrl = `${MOBILE_SCHEME}://auth/callback?${params.toString()}`;
+            mobileUrl = `${appRedirect}${separator}${params.toString()}`;
         }
 
         if (mobileUrl) {
-            console.log('[MobileAuthCallback] Redirigiendo al app:', mobileUrl.slice(0, 80));
+            console.log('[MobileAuthCallback] Redirigiendo al app:', mobileUrl.slice(0, 100));
             setStatus('redirecting');
-            // Redirigir al deep link del app mobile
-            // En Chrome Custom Tab (Android): dispara intent → el app lo intercepta
-            // En ASWebAuthenticationSession (iOS): el scheme nina:// cierra la sesión
             window.location.href = mobileUrl;
         } else {
-            console.error('[MobileAuthCallback] No se encontró code ni tokens en la URL');
+            console.error('[MobileAuthCallback] No code ni tokens en URL');
             console.error('[MobileAuthCallback] search:', window.location.search);
             console.error('[MobileAuthCallback] hash:', window.location.hash);
             setStatus('error');
         }
-    }, []);
+    }
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-white">
