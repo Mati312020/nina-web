@@ -42,7 +42,7 @@ export const useSubscription = () => {
         if (!user) throw new Error('No hay usuario autenticado');
         const data = await api.post('/long-term/subscribe', { auth_id: user.id });
         if (data.checkout_url) {
-            window.open(data.checkout_url, '_blank', 'noopener,noreferrer');
+            window.location.href = data.checkout_url;  // misma pestaña → MP redirige de vuelta correctamente
         }
         return data;
     };
