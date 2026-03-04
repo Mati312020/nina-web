@@ -25,10 +25,13 @@ export const AuthProvider = ({ children }) => {
         initAuth();
 
         // Listen for auth changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+        // IMPORTANTE: el callback NO debe ser async. Supabase v2 awaita callbacks
+        // async, bloqueando signInWithPassword hasta que fetchProfile complete (~30s).
+        // fetchProfile se llama como fire-and-forget; el loading se maneja dentro de ella.
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
             setUser(session?.user ?? null);
             if (session?.user) {
-                await fetchProfile(session.user.id, session.user.email);
+                fetchProfile(session.user.id, session.user.email); // fire-and-forget ✓
             } else {
                 setProfile(null);
                 setLoading(false);
