@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { api } from '../lib/api';
 
@@ -11,26 +11,41 @@ export const AuthProvider = ({ children }) => {
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        // Initial session check
-        const initAuth = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            setUser(session?.user ?? null);
-            if (session?.user) {
-                await fetchProfile(session.user.id, session.user.email);
+    // useCallback con deps vacías: solo usa setters estables de useState y api (módulo estático).
+    const fetchProfile = useCallback(async (auth_id, email, retryCount = 0) => {
+        try {
+            const data = await api.get(`/users/me?auth_id=${auth_id}&email=${email}`);
+            setProfile(data);
+            setLoading(false);
+        } catch (error) {
+            // Reintentar en AbortError: puede ocurrir por cold-start del backend (Render free)
+            // o por dobles requests abortados por el browser.
+            const isAbortError = error?.name === 'AbortError' || error?.message?.includes('aborted');
+            if (isAbortError && retryCount < 3) {
+                const delay = (retryCount + 1) * 1500; // 1.5s → 3s → 4.5s
+                console.log(`[Auth] Retry fetchProfile ${retryCount + 1}/3 en ${delay}ms...`);
+                setTimeout(() => fetchProfile(auth_id, email, retryCount + 1), delay);
+                // No setLoading(false) aquí: el spinner sigue mostrando durante los reintentos
             } else {
+                console.error("Error fetching profile:", error);
                 setLoading(false);
             }
-        };
-        initAuth();
+        }
+    }, []);
 
-        // Listen for auth changes
-        // IMPORTANTE: el callback NO debe ser async. Supabase v2 awaita callbacks
-        // async, bloqueando signInWithPassword hasta que fetchProfile complete (~30s).
-        // fetchProfile se llama como fire-and-forget; el loading se maneja dentro de ella.
+    useEffect(() => {
+        // Supabase v2 dispara INITIAL_SESSION de forma SÍNCRONA al registrar el listener.
+        // Esto reemplaza al patrón initAuth() + getSession() — que causaba doble llamada
+        // a fetchProfile cuando ambos encontraban la misma sesión activa.
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            // TOKEN_REFRESHED es un refresco silencioso de token en segundo plano.
+            // El perfil del usuario no cambió — ignorar para evitar re-fetches innecesarios.
+            if (_event === 'TOKEN_REFRESHED') return;
+
             setUser(session?.user ?? null);
+
             if (session?.user) {
+                setLoading(true); // Spinner mientras carga el perfil post-login
                 fetchProfile(session.user.id, session.user.email); // fire-and-forget ✓
             } else {
                 setProfile(null);
@@ -39,19 +54,7 @@ export const AuthProvider = ({ children }) => {
         });
 
         return () => subscription.unsubscribe();
-    }, []);
-
-    const fetchProfile = async (auth_id, email) => {
-        try {
-            // Using the endpoint structure from the mobile app hook
-            const data = await api.get(`/users/me?auth_id=${auth_id}&email=${email}`);
-            setProfile(data);
-        } catch (error) {
-            console.error("Error fetching profile:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    }, [fetchProfile]);
 
     const login = async (email, password) => {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -64,7 +67,7 @@ export const AuthProvider = ({ children }) => {
             password,
             options: {
                 data: {
-                    full_name: email.split('@')[0], // placeholder name
+                    full_name: email.split('@')[0],
                 }
             }
         });
