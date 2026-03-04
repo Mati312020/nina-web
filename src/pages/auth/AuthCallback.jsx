@@ -41,9 +41,11 @@ export const AuthCallback = () => {
         }
     }, []);
 
-    // Red de seguridad: si en 15 segundos no hay sesión, algo falló
+    // Red de seguridad: si en 60 segundos no hay sesión, algo falló.
+    // 60s cubre el peor caso de cold-start en Render free tier (~50s).
+    // fetchProfile en AuthContext reintenta hasta 5 veces con backoff (2+5+10+20+35=72s).
     useEffect(() => {
-        const timer = setTimeout(() => setTimedOut(true), 15000);
+        const timer = setTimeout(() => setTimedOut(true), 60000);
         return () => clearTimeout(timer);
     }, []);
 
