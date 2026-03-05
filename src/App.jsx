@@ -97,10 +97,10 @@ function App() {
                         <Route path="/auth/mobile-start" element={<MobileAuthStart />} />
                         <Route path="/auth/mobile-callback" element={<MobileAuthCallback />} />
 
-                        {/* Resultado de pago de suscripción */}
-                        <Route path="/payment/success" element={<PaymentResult outcome="success" />} />
-                        <Route path="/payment/failure" element={<PaymentResult outcome="failure" />} />
-                        <Route path="/payment/pending" element={<PaymentResult outcome="pending" />} />
+                        {/* Resultado de pago de suscripción (requiere auth) */}
+                        <Route path="/payment/success" element={<ProtectedRoute><PaymentResult outcome="success" /></ProtectedRoute>} />
+                        <Route path="/payment/failure" element={<ProtectedRoute><PaymentResult outcome="failure" /></ProtectedRoute>} />
+                        <Route path="/payment/pending" element={<ProtectedRoute><PaymentResult outcome="pending" /></ProtectedRoute>} />
 
                         {/* Páginas legales */}
                         <Route path="/legal/privacidad" element={<PrivacyPolicyPage />} />
