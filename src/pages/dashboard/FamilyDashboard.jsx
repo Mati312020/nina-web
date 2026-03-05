@@ -9,6 +9,7 @@ import { Button } from '../../components/ui/Button';
 import { NannyCard } from '../../components/dashboard/NannyCard';
 import { VacancyModal } from '../../components/dashboard/VacancyModal';
 import { SubscriptionModal } from '../../components/dashboard/SubscriptionModal';
+import { SubscriptionBanner } from '../../components/dashboard/SubscriptionBanner';
 
 /**
  * Dashboard para familias.
@@ -18,7 +19,7 @@ import { SubscriptionModal } from '../../components/dashboard/SubscriptionModal'
  */
 export const FamilyDashboard = () => {
     const { user, profile } = useAuth();
-    const { isSubscribed, subscribe, refetch: refetchSub } = useSubscription();
+    const { isSubscribed, expiresAt, subscribe, refetch: refetchSub } = useSubscription();
 
     const [nannies, setNannies] = useState([]);
     const [myVacancies, setMyVacancies] = useState([]);
@@ -88,6 +89,13 @@ export const FamilyDashboard = () => {
 
             {/* Contenido */}
             <div className="max-w-6xl mx-auto px-6 py-8 space-y-12">
+
+                {/* Banner de vencimiento de suscripción */}
+                <SubscriptionBanner
+                    isSubscribed={isSubscribed}
+                    expiresAt={expiresAt}
+                    onRenew={async () => { await subscribe(); setTimeout(refetchSub, 3000); }}
+                />
 
                 {/* Info: rankings desde nina-app */}
                 <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-start gap-3">
