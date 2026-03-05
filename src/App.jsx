@@ -13,6 +13,7 @@ import { NannyDashboard } from './pages/dashboard/NannyDashboard';
 import { PaymentResult } from './pages/PaymentResult';
 import { AuthCallback } from './pages/auth/AuthCallback';
 import { RecoveryPage } from './pages/auth/RecoveryPage';
+import { PrivacyPolicyPage } from './pages/legal/PrivacyPolicyPage';
 import MobileAuthCallback from './pages/auth/MobileAuthCallback';
 import MobileAuthStart from './pages/auth/MobileAuthStart';
 
@@ -100,6 +101,9 @@ function App() {
                         <Route path="/payment/success" element={<PaymentResult outcome="success" />} />
                         <Route path="/payment/failure" element={<PaymentResult outcome="failure" />} />
                         <Route path="/payment/pending" element={<PaymentResult outcome="pending" />} />
+
+                        {/* Páginas legales */}
+                        <Route path="/legal/privacidad" element={<PrivacyPolicyPage />} />
 
                         {/* Fallback */}
                         <Route path="*" element={<Navigate to="/" replace />} />

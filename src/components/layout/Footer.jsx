@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Bug, Lightbulb } from 'lucide-react';
 import logo from '../../assets/logo.png';
 import { ContactFormModal } from '../ui/ContactFormModal';
@@ -41,6 +42,11 @@ export const Footer = () => {
                 </div>
                 <p className="text-gray-400 text-sm font-nunito">
                     © {new Date().getFullYear()} Nina App. Todos los derechos reservados.
+                </p>
+                <p className="mt-2">
+                    <Link to="/legal/privacidad" className="text-xs text-gray-400 hover:text-primary transition-colors font-nunito underline underline-offset-2">
+                        Política de Privacidad y Términos de Uso
+                    </Link>
                 </p>
             </div>
 
