@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Calendar, Clock, MapPin, Info } from 'lucide-react';
+import { Plus, Calendar, Clock, MapPin, Info, Search } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { useSubscription } from '../../hooks/useSubscription';
@@ -112,8 +112,21 @@ export const FamilyDashboard = () => {
                                 ))}
                             </>
                         ) : nannies.length === 0 ? (
-                            <Card className="w-72 flex items-center justify-center p-10 text-gray-400 text-sm text-center">
-                                Aún no hay niñeras publicadas.<br />Volvé pronto.
+                            <Card className="flex-shrink-0 w-80 p-8 flex flex-col items-center text-center gap-3 border-2 border-dashed border-gray-200 bg-white">
+                                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+                                    <Search size={24} className="text-primary" />
+                                </div>
+                                <div>
+                                    <p className="font-semibold text-gray-700 font-poppins text-sm">Sin niñeras disponibles</p>
+                                    <p className="text-xs text-gray-400 font-nunito mt-1 leading-relaxed">
+                                        Todavía no hay niñeras publicadas en tu zona.<br />
+                                        Revisá más tarde o publicá tu vacante para que te encuentren.
+                                    </p>
+                                </div>
+                                <Button variant="outline" size="sm" className="text-xs gap-1.5 mt-1" onClick={() => setShowVacancyModal(true)}>
+                                    <Plus size={13} />
+                                    Publicar vacante
+                                </Button>
                             </Card>
                         ) : (
                             nannies.map((nanny) => (

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Clock, Calendar, CheckCircle, Info } from 'lucide-react';
+import { Plus, Clock, Calendar, CheckCircle, Info, Briefcase } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { useSubscription } from '../../hooks/useSubscription';
@@ -115,8 +115,21 @@ export const NannyDashboard = () => {
                                 ))}
                             </>
                         ) : vacancies.length === 0 ? (
-                            <Card className="w-72 flex items-center justify-center p-10 text-gray-400 text-sm text-center">
-                                No hay vacantes publicadas aún.<br />Volvé pronto.
+                            <Card className="flex-shrink-0 w-80 p-8 flex flex-col items-center text-center gap-3 border-2 border-dashed border-gray-200 bg-white">
+                                <div className="w-14 h-14 rounded-full bg-secondary/10 flex items-center justify-center">
+                                    <Briefcase size={24} className="text-secondary" />
+                                </div>
+                                <div>
+                                    <p className="font-semibold text-gray-700 font-poppins text-sm">Sin vacantes por ahora</p>
+                                    <p className="text-xs text-gray-400 font-nunito mt-1 leading-relaxed">
+                                        Las familias aún no publicaron vacantes.<br />
+                                        Publicarte como disponible te ayuda a aparecer cuando empiecen a buscar.
+                                    </p>
+                                </div>
+                                <Button variant="outline" size="sm" className="text-xs gap-1.5 mt-1" onClick={() => setShowAvailModal(true)}>
+                                    <Plus size={13} />
+                                    Publicarme disponible
+                                </Button>
                             </Card>
                         ) : (
                             vacancies.map((vacancy) => (
