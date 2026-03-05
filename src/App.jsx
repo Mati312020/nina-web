@@ -12,6 +12,7 @@ import { FamilyDashboard } from './pages/dashboard/FamilyDashboard';
 import { NannyDashboard } from './pages/dashboard/NannyDashboard';
 import { PaymentResult } from './pages/PaymentResult';
 import { AuthCallback } from './pages/auth/AuthCallback';
+import { RecoveryPage } from './pages/auth/RecoveryPage';
 import MobileAuthCallback from './pages/auth/MobileAuthCallback';
 import MobileAuthStart from './pages/auth/MobileAuthStart';
 
@@ -87,6 +88,9 @@ function App() {
 
                         {/* Callback OAuth web (Google en browser) */}
                         <Route path="/auth/callback" element={<AuthCallback />} />
+
+                        {/* Recuperación de contraseña (link enviado por email) */}
+                        <Route path="/auth/recovery" element={<RecoveryPage />} />
 
                         {/* Relay OAuth para la app mobile (nina-app) */}
                         <Route path="/auth/mobile-start" element={<MobileAuthStart />} />

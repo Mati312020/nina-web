@@ -128,6 +128,17 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const resetPassword = async (email) => {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: `${window.location.origin}/auth/recovery`,
+        });
+        if (error) {
+            logger.error('auth.resetPassword', 'reset_fallido', { error: error.message, email });
+            throw error;
+        }
+        logger.info('auth.resetPassword', 'reset_email_enviado', { email });
+    };
+
     return (
         <AuthContext.Provider value={{
             user,
@@ -137,6 +148,7 @@ export const AuthProvider = ({ children }) => {
             signup,
             logout,
             googleLogin,
+            resetPassword,
             refreshProfile: () => user && fetchProfile(user.id, user.email)
         }}>
             {children}
