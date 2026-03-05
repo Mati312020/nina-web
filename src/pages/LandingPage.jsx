@@ -7,11 +7,11 @@ import logo from '../assets/logo.png';
 
 /* ── screenshots que van en public/screenshots/ ── */
 const SCREENSHOTS = [
-    { src: '/screenshots/screen-oferta.png',   alt: 'Definí la oferta'      },
-    { src: '/screenshots/screen-buscando.png', alt: 'Buscando niñera'       },
-    { src: '/screenshots/screen-splash.png',   alt: 'Pantalla de inicio'    },
-    { src: '/screenshots/screen-ninera.png',   alt: 'Dashboard niñera'      },
-    { src: '/screenshots/screen-familia.png',  alt: 'Home familia'          },
+    { src: '/screenshots/screen-splash.jpg',   alt: 'Pantalla de inicio'    },
+    { src: '/screenshots/screen-familia.jpg',  alt: 'Home familia'          },
+    { src: '/screenshots/screen-oferta.jpg',   alt: 'Definí la oferta'      },
+    { src: '/screenshots/screen-buscando.jpg', alt: 'Buscando niñera'       },
+    { src: '/screenshots/screen-ninera.jpg',   alt: 'Dashboard niñera'      },
 ];
 
 /* ── Carrusel dentro del frame del teléfono ── */
@@ -32,8 +32,8 @@ const PhoneMockup = () => {
             {/* glow decorativo */}
             <div className="absolute inset-0 bg-gradient-to-tr from-primary/30 to-secondary/20 rounded-full blur-3xl -z-10 scale-110" />
 
-            {/* cuerpo del teléfono */}
-            <div className="relative bg-gray-900 rounded-[3rem] shadow-2xl border-[10px] border-gray-900 overflow-hidden aspect-[9/19]">
+            {/* cuerpo del teléfono — dimensiones explícitas más confiables que aspect-ratio arbitrario */}
+            <div className="relative bg-gray-900 rounded-[3rem] shadow-2xl border-[10px] border-gray-900 overflow-hidden w-[220px] h-[476px]">
 
                 {/* notch */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 bg-gray-900 rounded-b-xl z-20" />
@@ -41,13 +41,13 @@ const PhoneMockup = () => {
                 {/* slides */}
                 {SCREENSHOTS.map((s, i) => (
                     <React.Fragment key={i}>
-                        {/* fallback mientras no exista el archivo */}
+                        {/* fallback visible mientras carga la imagen */}
                         {!loaded[i] && (
-                            <div className={`absolute inset-0 flex flex-col items-center justify-center bg-primary/10 transition-opacity duration-700 ${i === current ? 'opacity-100' : 'opacity-0'}`}>
+                            <div className={`absolute inset-0 flex flex-col items-center justify-center bg-[#1c2333] transition-opacity duration-700 ${i === current ? 'opacity-100' : 'opacity-0'}`}>
                                 <div className="bg-primary p-3 rounded-2xl mb-3">
                                     <img src={logo} alt="Nina" className="h-12 w-auto" />
                                 </div>
-                                <p className="text-xs text-gray-500 px-4 text-center">{s.alt}</p>
+                                <p className="text-xs text-gray-400 px-4 text-center">{s.alt}</p>
                             </div>
                         )}
                         <img
@@ -80,12 +80,6 @@ const PhoneMockup = () => {
 };
 
 /* ── SVG logos inline (sin dependencia de paquetes) ── */
-const AppleLogo = () => (
-    <svg viewBox="0 0 24 24" className="w-7 h-7 fill-white" xmlns="http://www.w3.org/2000/svg">
-        <path d="M18.71 19.5C17.88 20.74 17 21.95 15.66 21.97C14.32 22 13.89 21.18 12.37 21.18C10.84 21.18 10.37 21.95 9.1 22C7.78 22.05 6.8 20.68 5.96 19.47C4.25 17 2.94 12.45 4.7 9.39C5.57 7.87 7.13 6.91 8.82 6.88C10.1 6.86 11.32 7.75 12.11 7.75C12.89 7.75 14.37 6.68 15.92 6.84C16.57 6.87 18.39 7.1 19.56 8.82C19.47 8.88 17.39 10.1 17.41 12.63C17.44 15.65 20.06 16.66 20.09 16.67C20.06 16.74 19.67 18.11 18.71 19.5ZM13 3.5C13.73 2.67 14.94 2.04 15.94 2C16.07 3.17 15.6 4.35 14.9 5.19C14.21 6.04 13.07 6.7 11.95 6.61C11.8 5.46 12.36 4.26 13 3.5Z"/>
-    </svg>
-);
-
 const PlayStoreLogo = () => (
     <svg viewBox="0 0 24 24" className="w-7 h-7" xmlns="http://www.w3.org/2000/svg">
         <path fill="#34A853" d="M1.22 0a1.4 1.4 0 0 0-.96 1.36v21.27a1.4 1.4 0 0 0 .96 1.36l.09.05L13.1 12.3v-.28L1.31-.05z"/>
@@ -142,20 +136,8 @@ export const LandingPage = () => (
                         </p>
 
                         <div className="flex flex-wrap gap-3 items-center">
-                            {/* App Store — disponible */}
-                            <a
-                                href="#"
-                                className="inline-flex items-center gap-3 bg-black text-white px-5 py-3 rounded-xl hover:bg-gray-800 active:scale-95 transition-all duration-150 shadow-md"
-                            >
-                                <AppleLogo />
-                                <div className="leading-none">
-                                    <div className="text-[10px] opacity-70 mb-0.5">Disponible en</div>
-                                    <div className="text-sm font-bold font-poppins">App Store</div>
-                                </div>
-                            </a>
-
                             {/* Google Play — Próximamente */}
-                            <div className="inline-flex items-center gap-3 bg-white border border-gray-200 px-5 py-3 rounded-xl shadow-sm cursor-default select-none opacity-70">
+                            <div className="inline-flex items-center gap-3 bg-white border border-gray-200 px-5 py-3 rounded-xl shadow-sm cursor-default select-none opacity-80">
                                 <PlayStoreLogo />
                                 <div className="leading-none">
                                     <div className="text-[10px] text-amber-500 font-semibold mb-0.5">Próximamente</div>
