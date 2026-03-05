@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Heart, CreditCard, MapPin, Star, UserCheck, Clock } from 'lucide-react';
 import { Hero } from '../components/sections/Hero';
@@ -46,17 +45,13 @@ export const LandingPage = () => {
                 <div className="container mx-auto px-4">
                     <div className="grid md:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
                         <div className="space-y-8">
-                            <h2 className="text-3xl font-bold text-gray-900 font-poppins">Descarga la App</h2>
+                            <h2 className="text-3xl font-bold text-gray-900 font-poppins">App Móvil</h2>
                             <p className="text-lg text-gray-600 font-nunito">
-                                Lleva a Nina contigo. Gestiona reservas, recibe notificaciones al instante y mantén el contacto directo con tu niñera desde nuestra aplicación móvil.
+                                Llevá a Nina con vos. Gestioná reservas, recibí notificaciones al instante y mantené el contacto directo con tu niñera desde nuestra aplicación móvil.
                             </p>
-                            <div className="flex gap-4">
-                                <Button variant="primary" className="bg-black text-white hover:bg-gray-800">
-                                    App Store
-                                </Button>
-                                <Button variant="primary" className="bg-black text-white hover:bg-gray-800">
-                                    Google Play
-                                </Button>
+                            <div className="inline-flex items-center gap-3 bg-primary/10 text-primary border border-primary/20 px-6 py-3 rounded-xl font-bold font-poppins">
+                                <span className="text-xl">📱</span>
+                                Próximamente en App Store y Google Play
                             </div>
                         </div>
                         <div className="relative">
