@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, Clock, Lock, Phone, Mail } from 'lucide-react';
+import { Star, Clock, Lock, Phone, Mail, MapPin } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 
@@ -50,6 +50,14 @@ export const NannyCard = ({ nanny, isSubscribed, onContactClick }) => {
                 <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
                     {nanny.nanny_bio}
                 </p>
+            )}
+
+            {/* Zona */}
+            {nanny.nanny_zone && (
+                <div className="flex items-center gap-1.5 text-sm text-gray-500">
+                    <MapPin size={14} className="flex-shrink-0 text-secondary" />
+                    <span className="truncate">{nanny.nanny_zone}</span>
+                </div>
             )}
 
             {/* Disponibilidad */}

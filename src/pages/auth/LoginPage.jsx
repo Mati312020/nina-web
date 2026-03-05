@@ -114,8 +114,8 @@ export const LoginPage = () => {
                 </Button>
 
                 <p className="text-center mt-8 text-sm text-gray-500">
-                    ¿No tienes cuenta?{' '}
-                    <Link to="/register" className="text-primary font-bold hover:underline">
+                    ¿No tenés cuenta?{' '}
+                    <Link to="/disclaimer" className="text-primary font-bold hover:underline">
                         Registrate
                     </Link>
                 </p>

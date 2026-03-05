@@ -53,6 +53,7 @@ const write = (level, context, message, data) => {
         message,
         data:    data ?? null,
         url:     typeof window !== 'undefined' ? window.location.pathname : null,
+        source:  'nina-web',
     }).then(({ error }) => {
         if (error) {
             // Solo imprimir en consola, nunca relanzar

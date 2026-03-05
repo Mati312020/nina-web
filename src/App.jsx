@@ -5,6 +5,7 @@ import { Layout } from './components/layout/Layout';
 import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/auth/LoginPage';
 import { RegisterPage } from './pages/auth/RegisterPage';
+import { DisclaimerPage } from './pages/auth/DisclaimerPage';
 import { ProfileSelectionPage } from './pages/auth/ProfileSelectionPage';
 import { CreateProfilePage } from './pages/auth/CreateProfilePage';
 import { FamilyDashboard } from './pages/dashboard/FamilyDashboard';
@@ -68,6 +69,8 @@ function App() {
                         {/* Públicas */}
                         <Route path="/" element={<LandingPage />} />
                         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+                        {/* Deslinde de responsabilidades — puerta obligatoria antes del registro */}
+                        <Route path="/disclaimer" element={<PublicRoute><DisclaimerPage /></PublicRoute>} />
                         <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
 
                         {/* Onboarding (requieren auth) */}
