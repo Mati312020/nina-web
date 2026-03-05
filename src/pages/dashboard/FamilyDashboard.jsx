@@ -10,6 +10,7 @@ import { NannyCard } from '../../components/dashboard/NannyCard';
 import { VacancyModal } from '../../components/dashboard/VacancyModal';
 import { SubscriptionModal } from '../../components/dashboard/SubscriptionModal';
 import { SubscriptionBanner } from '../../components/dashboard/SubscriptionBanner';
+import { DeleteAccountModal } from '../../components/dashboard/DeleteAccountModal';
 
 /**
  * Dashboard para familias.
@@ -26,6 +27,7 @@ export const FamilyDashboard = () => {
     const [loadingNannies, setLoadingNannies] = useState(true);
     const [showVacancyModal, setShowVacancyModal] = useState(false);
     const [showSubModal, setShowSubModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     const fetchNannies = useCallback(async () => {
         if (!user) return;
@@ -210,6 +212,16 @@ export const FamilyDashboard = () => {
                         </div>
                     )}
                 </section>
+
+                {/* Zona de peligro */}
+                <section className="pt-4 border-t border-gray-100">
+                    <button
+                        onClick={() => setShowDeleteModal(true)}
+                        className="text-sm text-gray-400 hover:text-danger transition-colors font-nunito underline underline-offset-2"
+                    >
+                        Eliminar mi cuenta
+                    </button>
+                </section>
             </div>
 
             {/* Modals */}
@@ -226,6 +238,12 @@ export const FamilyDashboard = () => {
                     // Re-verificar suscripción después de iniciar el pago
                     setTimeout(refetchSub, 3000);
                 }}
+            />
+            <DeleteAccountModal
+                isOpen={showDeleteModal}
+                onClose={() => setShowDeleteModal(false)}
+                authId={user?.id}
+                onSuccess={() => window.location.href = '/'}
             />
         </div>
     );

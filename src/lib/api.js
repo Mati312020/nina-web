@@ -102,4 +102,14 @@ export const api = {
             throw error;
         }
     },
+
+    delete: async (endpoint) => {
+        try {
+            // 204 No Content — no intentes parsear JSON
+            await fetchWithTimeout(`${API_URL}${endpoint}`, { method: 'DELETE' });
+        } catch (error) {
+            console.error('API call failed:', error);
+            throw error;
+        }
+    },
 };
