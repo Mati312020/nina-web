@@ -1,47 +1,63 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { Card } from '../components/ui/Card';
-import { Heart, CreditCard, MapPin } from 'lucide-react';
+import { Heart, CreditCard, MapPin, Search, CalendarCheck, Star,
+         ToggleRight, DollarSign, Clock, UserCheck, FileText, Bell } from 'lucide-react';
 import { Hero } from '../components/sections/Hero';
 import logo from '../assets/logo.png';
 
-/* ── screenshots que van en public/screenshots/ ── */
-const SCREENSHOTS = [
-    { src: '/screenshots/screen-splash.jpg',   alt: 'Pantalla de inicio'    },
-    { src: '/screenshots/screen-familia.jpg',  alt: 'Home familia'          },
-    { src: '/screenshots/screen-oferta.jpg',   alt: 'Definí la oferta'      },
-    { src: '/screenshots/screen-buscando.jpg', alt: 'Buscando niñera'       },
-    { src: '/screenshots/screen-ninera.jpg',   alt: 'Dashboard niñera'      },
+/* ══════════════════════════════════════════════════════════
+   DATOS del carrusel — cada slide tiene su propio copy
+   ══════════════════════════════════════════════════════════ */
+const SLIDES = [
+    {
+        src:         '/screenshots/screen-splash.jpg',
+        alt:         'Pantalla de inicio',
+        title:       'Siempre lista para vos',
+        description: 'Nina abre en segundos y te conecta con niñeras de confianza en tu barrio. Disponible las 24 hs, los 7 días de la semana.',
+    },
+    {
+        src:         '/screenshots/screen-familia.jpg',
+        alt:         'Home familia',
+        title:       'Encontrá la niñera ideal',
+        description: 'Buscá por barrio, elegí fecha y hora, y explorá perfiles de niñeras cercanas con reseñas reales y tarifa por hora.',
+    },
+    {
+        src:         '/screenshots/screen-oferta.jpg',
+        alt:         'Definí la oferta',
+        title:       'Vos ponés las condiciones',
+        description: 'Elegí la duración del servicio y decidís si usás la tarifa estándar o hacés tu propia oferta. Simple y transparente.',
+    },
+    {
+        src:         '/screenshots/screen-buscando.jpg',
+        alt:         'Buscando niñera',
+        title:       'Matching en tiempo real',
+        description: 'La app contacta niñeras disponibles al instante. Cada candidata tiene 5 minutos para aceptar y te avisamos cuando alguien confirma.',
+    },
+    {
+        src:         '/screenshots/screen-ninera.jpg',
+        alt:         'Dashboard niñera',
+        title:       'El panel de la niñera',
+        description: 'Las niñeras controlan su disponibilidad semanal, siguen sus ganancias y aparecen en búsquedas inmediatas con un solo toque.',
+    },
 ];
 
-/* ── Carrusel dentro del frame del teléfono ── */
-const PhoneMockup = () => {
-    const [current, setCurrent] = useState(0);
-    const [loaded, setLoaded]   = useState({});
-
-    /* auto-avanza cada 3 s */
-    useEffect(() => {
-        const timer = setInterval(() =>
-            setCurrent(prev => (prev + 1) % SCREENSHOTS.length),
-        3000);
-        return () => clearInterval(timer);
-    }, []);
+/* ══════════════════════════════════════════════════════════
+   PHONE MOCKUP con carrusel
+   recibe current + setCurrent desde el padre para sincronizar
+   ══════════════════════════════════════════════════════════ */
+const PhoneMockup = ({ current, setCurrent }) => {
+    const [loaded, setLoaded] = useState({});
 
     return (
         <div className="relative mx-auto max-w-[240px]">
-            {/* glow decorativo */}
             <div className="absolute inset-0 bg-gradient-to-tr from-primary/30 to-secondary/20 rounded-full blur-3xl -z-10 scale-110" />
 
-            {/* cuerpo del teléfono — dimensiones explícitas más confiables que aspect-ratio arbitrario */}
             <div className="relative bg-gray-900 rounded-[3rem] shadow-2xl border-[10px] border-gray-900 overflow-hidden w-[220px] h-[476px]">
-
                 {/* notch */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 bg-gray-900 rounded-b-xl z-20" />
 
-                {/* slides */}
-                {SCREENSHOTS.map((s, i) => (
+                {SLIDES.map((s, i) => (
                     <React.Fragment key={i}>
-                        {/* fallback visible mientras carga la imagen */}
                         {!loaded[i] && (
                             <div className={`absolute inset-0 flex flex-col items-center justify-center bg-[#1c2333] transition-opacity duration-700 ${i === current ? 'opacity-100' : 'opacity-0'}`}>
                                 <div className="bg-primary p-3 rounded-2xl mb-3">
@@ -54,23 +70,22 @@ const PhoneMockup = () => {
                             src={s.src}
                             alt={s.alt}
                             onLoad={() => setLoaded(prev => ({ ...prev, [i]: true }))}
-                            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${i === current ? 'opacity-100' : 'opacity-0'} ${!loaded[i] ? 'invisible' : ''}`}
+                            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700
+                                ${i === current ? 'opacity-100' : 'opacity-0'}
+                                ${!loaded[i] ? 'invisible' : ''}`}
                         />
                     </React.Fragment>
                 ))}
 
-                {/* indicadores */}
+                {/* dots */}
                 <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5 z-10">
-                    {SCREENSHOTS.map((_, i) => (
+                    {SLIDES.map((_, i) => (
                         <button
                             key={i}
                             onClick={() => setCurrent(i)}
                             aria-label={`Ver screenshot ${i + 1}`}
-                            className={`h-1.5 rounded-full transition-all duration-300 ${
-                                i === current
-                                    ? 'bg-white w-4 shadow-sm'
-                                    : 'bg-white/50 w-1.5 hover:bg-white/80'
-                            }`}
+                            className={`h-1.5 rounded-full transition-all duration-300
+                                ${i === current ? 'bg-white w-4 shadow-sm' : 'bg-white/50 w-1.5 hover:bg-white/80'}`}
                         />
                     ))}
                 </div>
@@ -79,64 +94,57 @@ const PhoneMockup = () => {
     );
 };
 
-/* ── SVG logos inline (sin dependencia de paquetes) ── */
-const PlayStoreLogo = () => (
-    <svg viewBox="0 0 24 24" className="w-7 h-7" xmlns="http://www.w3.org/2000/svg">
-        <path fill="#34A853" d="M1.22 0a1.4 1.4 0 0 0-.96 1.36v21.27a1.4 1.4 0 0 0 .96 1.36l.09.05L13.1 12.3v-.28L1.31-.05z"/>
-        <path fill="#4285F4" d="M17.05 16.17l-3.95-3.87v-.28l3.95-3.87.09.05 4.68 2.66c1.34.76 1.34 2 0 2.76l-4.68 2.66z"/>
-        <path fill="#FBBC05" d="M17.14 16.06L13.1 12 1.22 23.98c.44.47 1.17.53 1.98.06z"/>
-        <path fill="#EA4335" d="M17.14 7.94L3.2.02C2.39-.46 1.66-.39 1.22.08L13.1 12z"/>
-    </svg>
-);
+/* ══════════════════════════════════════════════════════════
+   SECCIÓN APP MÓVIL — texto sincronizado con el carrusel
+   ══════════════════════════════════════════════════════════ */
+const AppMovilSection = () => {
+    const [current, setCurrent] = useState(0);
 
-/* ── Página ── */
-export const LandingPage = () => (
-    <div className="flex flex-col">
+    /* auto-avanza cada 3 s */
+    useEffect(() => {
+        const t = setInterval(() => setCurrent(p => (p + 1) % SLIDES.length), 3000);
+        return () => clearInterval(t);
+    }, []);
 
-        {/* Hero */}
-        <Hero />
+    const slide = SLIDES[current];
 
-        {/* Features */}
-        <section className="py-20 bg-white">
-            <div className="container mx-auto px-4">
-                <div className="text-center mb-16">
-                    <h2 className="text-3xl font-bold text-gray-900 mb-4 font-poppins">¿Por qué elegir Nina?</h2>
-                    <div className="w-24 h-1 bg-primary mx-auto rounded-full" />
-                </div>
-                <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                    <FeatureCard
-                        icon={<CreditCard className="w-8 h-8 text-primary" />}
-                        title="Pago Seguro con Mercado Pago"
-                        description="Pagá de forma segura y sin complicaciones a través de Mercado Pago. Aceptamos tarjetas, transferencias y más."
-                    />
-                    <FeatureCard
-                        icon={<MapPin className="w-8 h-8 text-secondary" />}
-                        title="En tu Barrio"
-                        description="Encuentra ayuda cerca de casa. Menos tiempo de viaje, más tiempo de calidad."
-                    />
-                    <FeatureCard
-                        icon={<Heart className="w-8 h-8 text-danger" />}
-                        title="Confianza Total"
-                        description="Lee reseñas reales de otros padres y conoce a la niñera antes de contratar."
-                    />
-                </div>
-            </div>
-        </section>
-
-        {/* App Móvil */}
+    return (
         <section className="py-20 bg-gray-50">
             <div className="container mx-auto px-4">
                 <div className="grid md:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
 
-                    {/* texto + badges */}
-                    <div className="space-y-8">
+                    {/* — texto dinámico — */}
+                    <div className="space-y-6">
                         <h2 className="text-3xl font-bold text-gray-900 font-poppins">App Móvil</h2>
-                        <p className="text-lg text-gray-600 font-nunito leading-relaxed">
-                            Llevá a Nina con vos. Gestioná reservas, recibí notificaciones al instante y mantené el contacto directo con tu niñera desde nuestra aplicación móvil.
-                        </p>
 
-                        <div className="flex flex-wrap gap-3 items-center">
-                            {/* Google Play — Próximamente */}
+                        {/* bloque que cambia con key para disparar fade-in */}
+                        <div key={current} className="animate-fadeIn space-y-3">
+                            <h3 className="text-xl font-semibold text-primary font-poppins">
+                                {slide.title}
+                            </h3>
+                            <p className="text-lg text-gray-600 font-nunito leading-relaxed">
+                                {slide.description}
+                            </p>
+                        </div>
+
+                        {/* indicadores de slide como chips */}
+                        <div className="flex flex-wrap gap-2 pt-2">
+                            {SLIDES.map((s, i) => (
+                                <button
+                                    key={i}
+                                    onClick={() => setCurrent(i)}
+                                    className={`text-xs px-3 py-1.5 rounded-full font-medium transition-all duration-200
+                                        ${i === current
+                                            ? 'bg-primary text-white shadow-sm'
+                                            : 'bg-gray-200 text-gray-500 hover:bg-gray-300'}`}
+                                >
+                                    {s.alt}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* badge Google Play */}
+                        <div className="pt-2">
                             <div className="inline-flex items-center gap-3 bg-white border border-gray-200 px-5 py-3 rounded-xl shadow-sm cursor-default select-none opacity-80">
                                 <PlayStoreLogo />
                                 <div className="leading-none">
@@ -147,12 +155,126 @@ export const LandingPage = () => (
                         </div>
                     </div>
 
-                    {/* mockup del teléfono */}
-                    <PhoneMockup />
+                    {/* — mockup del teléfono — */}
+                    <PhoneMockup current={current} setCurrent={setCurrent} />
 
                 </div>
             </div>
         </section>
+    );
+};
+
+/* ══════════════════════════════════════════════════════════
+   SECCIÓN PLATAFORMA WEB
+   ══════════════════════════════════════════════════════════ */
+const WebSection = () => (
+    <section className="py-20 bg-white">
+        <div className="container mx-auto px-4 max-w-6xl">
+
+            <div className="text-center mb-14">
+                <span className="text-xs font-semibold tracking-widest text-primary uppercase">También desde el navegador</span>
+                <h2 className="text-3xl font-bold text-gray-900 mt-2 mb-4 font-poppins">Todo lo que podés hacer en la web</h2>
+                <div className="w-24 h-1 bg-primary mx-auto rounded-full" />
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-8">
+                {/* columna Familias */}
+                <div className="bg-gray-50 rounded-2xl p-8 space-y-5">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                            <UserCheck className="w-5 h-5 text-primary" />
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 font-poppins">Para Familias</h3>
+                    </div>
+                    <WebFeature icon={<Search className="w-4 h-4"/>}      text="Explorá perfiles de niñeras cercanas con foto, reseñas y experiencia" />
+                    <WebFeature icon={<FileText className="w-4 h-4"/>}    text="Publicá vacantes detallando horario, días y requisitos específicos" />
+                    <WebFeature icon={<CalendarCheck className="w-4 h-4"/>} text="Gestioná tus reservas activas y revisá el historial de servicios" />
+                    <WebFeature icon={<Star className="w-4 h-4"/>}        text="Dejá reseñas y calificaciones para construir una comunidad de confianza" />
+                    <WebFeature icon={<CreditCard className="w-4 h-4"/>}  text="Revisá tus pagos y facturas de servicios anteriores vía Mercado Pago" />
+                    <WebFeature icon={<Bell className="w-4 h-4"/>}        text="Recibí notificaciones cuando una niñera acepta tu solicitud" />
+                </div>
+
+                {/* columna Niñeras */}
+                <div className="bg-gray-50 rounded-2xl p-8 space-y-5">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center">
+                            <Heart className="w-5 h-5 text-secondary" />
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 font-poppins">Para Niñeras</h3>
+                    </div>
+                    <WebFeature icon={<ToggleRight className="w-4 h-4"/>} text="Activá tu disponibilidad para aparecer en búsquedas inmediatas de familias" color="secondary" />
+                    <WebFeature icon={<FileText className="w-4 h-4"/>}    text="Explorá vacantes publicadas y postulate a trabajos que se adapten a tu agenda" color="secondary" />
+                    <WebFeature icon={<DollarSign className="w-4 h-4"/>}  text="Seguí tus ganancias semanales y el historial completo de servicios realizados" color="secondary" />
+                    <WebFeature icon={<Clock className="w-4 h-4"/>}       text="Configurá tu disponibilidad semanal por día y franja horaria" color="secondary" />
+                    <WebFeature icon={<Star className="w-4 h-4"/>}        text="Acumulá reseñas de familias para destacarte en los resultados de búsqueda" color="secondary" />
+                    <WebFeature icon={<MapPin className="w-4 h-4"/>}      text="Definí tu zona de trabajo y aparecé en búsquedas de tu barrio" color="secondary" />
+                </div>
+            </div>
+        </div>
+    </section>
+);
+
+const WebFeature = ({ icon, text, color = 'primary' }) => (
+    <div className="flex items-start gap-3">
+        <div className={`mt-0.5 w-7 h-7 rounded-lg flex-shrink-0 flex items-center justify-center
+            ${color === 'secondary' ? 'bg-secondary/10 text-secondary' : 'bg-primary/10 text-primary'}`}>
+            {icon}
+        </div>
+        <p className="text-gray-600 font-nunito text-sm leading-relaxed">{text}</p>
+    </div>
+);
+
+/* ══════════════════════════════════════════════════════════
+   SVG logo Google Play
+   ══════════════════════════════════════════════════════════ */
+const PlayStoreLogo = () => (
+    <svg viewBox="0 0 24 24" className="w-7 h-7" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#34A853" d="M1.22 0a1.4 1.4 0 0 0-.96 1.36v21.27a1.4 1.4 0 0 0 .96 1.36l.09.05L13.1 12.3v-.28L1.31-.05z"/>
+        <path fill="#4285F4" d="M17.05 16.17l-3.95-3.87v-.28l3.95-3.87.09.05 4.68 2.66c1.34.76 1.34 2 0 2.76l-4.68 2.66z"/>
+        <path fill="#FBBC05" d="M17.14 16.06L13.1 12 1.22 23.98c.44.47 1.17.53 1.98.06z"/>
+        <path fill="#EA4335" d="M17.14 7.94L3.2.02C2.39-.46 1.66-.39 1.22.08L13.1 12z"/>
+    </svg>
+);
+
+/* ══════════════════════════════════════════════════════════
+   PÁGINA PRINCIPAL
+   ══════════════════════════════════════════════════════════ */
+export const LandingPage = () => (
+    <div className="flex flex-col">
+        <Hero />
+
+        {/* ¿Por qué Nina? */}
+        <section className="py-20 bg-white">
+            <div className="container mx-auto px-4">
+                <div className="text-center mb-16">
+                    <h2 className="text-3xl font-bold text-gray-900 mb-4 font-poppins">¿Por qué elegir Nina?</h2>
+                    <div className="w-24 h-1 bg-primary mx-auto rounded-full" />
+                </div>
+                <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                    <FeatureCard
+                        icon={<CreditCard className="w-8 h-8 text-primary" />}
+                        title="Pago Seguro con Mercado Pago"
+                        description="Pagá de forma segura y sin complicaciones. Aceptamos tarjetas, transferencias y más."
+                    />
+                    <FeatureCard
+                        icon={<MapPin className="w-8 h-8 text-secondary" />}
+                        title="En tu Barrio"
+                        description="Encontrá ayuda cerca de casa. Menos tiempo de viaje, más tiempo de calidad."
+                    />
+                    <FeatureCard
+                        icon={<Heart className="w-8 h-8 text-danger" />}
+                        title="Confianza Total"
+                        description="Leé reseñas reales de otros padres y conocé a la niñera antes de contratar."
+                    />
+                </div>
+            </div>
+        </section>
+
+        {/* Plataforma Web */}
+        <WebSection />
+
+        {/* App Móvil */}
+        <AppMovilSection />
 
     </div>
 );

@@ -24,6 +24,15 @@ export default {
                 button: "12px",
                 card: "16px",
             },
+            keyframes: {
+                fadeIn: {
+                    '0%':   { opacity: '0', transform: 'translateY(6px)' },
+                    '100%': { opacity: '1', transform: 'translateY(0)' },
+                },
+            },
+            animation: {
+                fadeIn: 'fadeIn 0.4s ease-out',
+            },
         },
     },
     plugins: [],
