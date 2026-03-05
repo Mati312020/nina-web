@@ -35,10 +35,10 @@ export const FamilyVacancyCard = ({ vacancy, isSubscribed, onContactClick }) => 
                     <Clock size={14} className="text-primary flex-shrink-0" />
                     <span>{vacancy.hours_per_week} hs/semana</span>
                 </div>
-                {vacancy.location && (
+                {(vacancy.family_zone || vacancy.location) && (
                     <div className="flex items-center gap-2">
                         <MapPin size={14} className="text-secondary flex-shrink-0" />
-                        <span className="truncate">{vacancy.location}</span>
+                        <span className="truncate">{vacancy.family_zone || vacancy.location}</span>
                     </div>
                 )}
             </div>

@@ -44,7 +44,7 @@ export const Navbar = () => {
                             <Link to="/login">
                                 <Button variant="ghost">Iniciar Sesión</Button>
                             </Link>
-                            <Link to="/register">
+                            <Link to="/disclaimer">
                                 <Button>Registrarse</Button>
                             </Link>
                         </>

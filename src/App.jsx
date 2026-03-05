@@ -5,12 +5,15 @@ import { Layout } from './components/layout/Layout';
 import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/auth/LoginPage';
 import { RegisterPage } from './pages/auth/RegisterPage';
+import { DisclaimerPage } from './pages/auth/DisclaimerPage';
 import { ProfileSelectionPage } from './pages/auth/ProfileSelectionPage';
 import { CreateProfilePage } from './pages/auth/CreateProfilePage';
 import { FamilyDashboard } from './pages/dashboard/FamilyDashboard';
 import { NannyDashboard } from './pages/dashboard/NannyDashboard';
 import { PaymentResult } from './pages/PaymentResult';
 import { AuthCallback } from './pages/auth/AuthCallback';
+import { RecoveryPage } from './pages/auth/RecoveryPage';
+import { PrivacyPolicyPage } from './pages/legal/PrivacyPolicyPage';
 import MobileAuthCallback from './pages/auth/MobileAuthCallback';
 import MobileAuthStart from './pages/auth/MobileAuthStart';
 
@@ -68,6 +71,8 @@ function App() {
                         {/* Públicas */}
                         <Route path="/" element={<LandingPage />} />
                         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+                        {/* Deslinde de responsabilidades — puerta obligatoria antes del registro */}
+                        <Route path="/disclaimer" element={<PublicRoute><DisclaimerPage /></PublicRoute>} />
                         <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
 
                         {/* Onboarding (requieren auth) */}
@@ -85,6 +90,9 @@ function App() {
                         {/* Callback OAuth web (Google en browser) */}
                         <Route path="/auth/callback" element={<AuthCallback />} />
 
+                        {/* Recuperación de contraseña (link enviado por email) */}
+                        <Route path="/auth/recovery" element={<RecoveryPage />} />
+
                         {/* Relay OAuth para la app mobile (nina-app) */}
                         <Route path="/auth/mobile-start" element={<MobileAuthStart />} />
                         <Route path="/auth/mobile-callback" element={<MobileAuthCallback />} />
@@ -93,6 +101,9 @@ function App() {
                         <Route path="/payment/success" element={<PaymentResult outcome="success" />} />
                         <Route path="/payment/failure" element={<PaymentResult outcome="failure" />} />
                         <Route path="/payment/pending" element={<PaymentResult outcome="pending" />} />
+
+                        {/* Páginas legales */}
+                        <Route path="/legal/privacidad" element={<PrivacyPolicyPage />} />
 
                         {/* Fallback */}
                         <Route path="*" element={<Navigate to="/" replace />} />

@@ -152,6 +152,12 @@ export const RegisterPage = () => {
                         Iniciá sesión
                     </Link>
                 </p>
+                <p className="text-center mt-2 text-xs text-gray-400">
+                    Al registrarte aceptás el{' '}
+                    <Link to="/disclaimer" className="underline hover:text-gray-600">
+                        deslinde de responsabilidades
+                    </Link>.
+                </p>
             </Card>
         </div>
     );

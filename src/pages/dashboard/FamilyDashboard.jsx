@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Calendar, Clock, MapPin, Info } from 'lucide-react';
+import { Plus, Calendar, Clock, MapPin, Info, Search } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { useSubscription } from '../../hooks/useSubscription';
@@ -9,6 +9,8 @@ import { Button } from '../../components/ui/Button';
 import { NannyCard } from '../../components/dashboard/NannyCard';
 import { VacancyModal } from '../../components/dashboard/VacancyModal';
 import { SubscriptionModal } from '../../components/dashboard/SubscriptionModal';
+import { SubscriptionBanner } from '../../components/dashboard/SubscriptionBanner';
+import { DeleteAccountModal } from '../../components/dashboard/DeleteAccountModal';
 
 /**
  * Dashboard para familias.
@@ -18,13 +20,14 @@ import { SubscriptionModal } from '../../components/dashboard/SubscriptionModal'
  */
 export const FamilyDashboard = () => {
     const { user, profile } = useAuth();
-    const { isSubscribed, subscribe, refetch: refetchSub } = useSubscription();
+    const { isSubscribed, expiresAt, subscribe, refetch: refetchSub } = useSubscription();
 
     const [nannies, setNannies] = useState([]);
     const [myVacancies, setMyVacancies] = useState([]);
     const [loadingNannies, setLoadingNannies] = useState(true);
     const [showVacancyModal, setShowVacancyModal] = useState(false);
     const [showSubModal, setShowSubModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     const fetchNannies = useCallback(async () => {
         if (!user) return;
@@ -89,6 +92,13 @@ export const FamilyDashboard = () => {
             {/* Contenido */}
             <div className="max-w-6xl mx-auto px-6 py-8 space-y-12">
 
+                {/* Banner de vencimiento de suscripción */}
+                <SubscriptionBanner
+                    isSubscribed={isSubscribed}
+                    expiresAt={expiresAt}
+                    onRenew={async () => { await subscribe(); setTimeout(refetchSub, 3000); }}
+                />
+
                 {/* Info: rankings desde nina-app */}
                 <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-start gap-3">
                     <Info size={16} className="text-primary flex-shrink-0 mt-0.5" />
@@ -112,8 +122,21 @@ export const FamilyDashboard = () => {
                                 ))}
                             </>
                         ) : nannies.length === 0 ? (
-                            <Card className="w-72 flex items-center justify-center p-10 text-gray-400 text-sm text-center">
-                                Aún no hay niñeras publicadas.<br />Volvé pronto.
+                            <Card className="flex-shrink-0 w-80 p-8 flex flex-col items-center text-center gap-3 border-2 border-dashed border-gray-200 bg-white">
+                                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+                                    <Search size={24} className="text-primary" />
+                                </div>
+                                <div>
+                                    <p className="font-semibold text-gray-700 font-poppins text-sm">Sin niñeras disponibles</p>
+                                    <p className="text-xs text-gray-400 font-nunito mt-1 leading-relaxed">
+                                        Todavía no hay niñeras publicadas en tu zona.<br />
+                                        Revisá más tarde o publicá tu vacante para que te encuentren.
+                                    </p>
+                                </div>
+                                <Button variant="outline" size="sm" className="text-xs gap-1.5 mt-1" onClick={() => setShowVacancyModal(true)}>
+                                    <Plus size={13} />
+                                    Publicar vacante
+                                </Button>
                             </Card>
                         ) : (
                             nannies.map((nanny) => (
@@ -189,6 +212,16 @@ export const FamilyDashboard = () => {
                         </div>
                     )}
                 </section>
+
+                {/* Zona de peligro */}
+                <section className="pt-4 border-t border-gray-100">
+                    <button
+                        onClick={() => setShowDeleteModal(true)}
+                        className="text-sm text-gray-400 hover:text-danger transition-colors font-nunito underline underline-offset-2"
+                    >
+                        Eliminar mi cuenta
+                    </button>
+                </section>
             </div>
 
             {/* Modals */}
@@ -205,6 +238,12 @@ export const FamilyDashboard = () => {
                     // Re-verificar suscripción después de iniciar el pago
                     setTimeout(refetchSub, 3000);
                 }}
+            />
+            <DeleteAccountModal
+                isOpen={showDeleteModal}
+                onClose={() => setShowDeleteModal(false)}
+                authId={user?.id}
+                onSuccess={() => window.location.href = '/'}
             />
         </div>
     );
