@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Layout } from './components/layout/Layout';
@@ -63,6 +63,17 @@ const RoleDashboard = ({ role }) => {
 };
 
 function App() {
+    /**
+     * Warm-up silencioso: despierta el backend de Render free tier apenas carga el sitio.
+     * El cold start tarda 30-60s; el flujo OAuth de Google también ~10s → cuando
+     * fetchProfile() llama al backend, ya está caliente y responde en <1s.
+     * Fix definitivo: upgradear nina-app a Starter ($7/mes) para eliminar el sleep.
+     */
+    useEffect(() => {
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+        fetch(`${API_URL}/`).catch(() => {}); // ignorar errores — solo queremos despertar el dyno
+    }, []);
+
     return (
         <Router>
             <AuthProvider>
