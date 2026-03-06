@@ -79,7 +79,7 @@ export const SubscriptionModal = ({ isOpen, onClose, onSubscribe }) => {
                 </Button>
 
                 <p className="text-xs text-gray-400 text-center">
-                    Se abrirá MercadoPago en una nueva pestaña. Volvé aquí después de pagar.
+                    Serás redirigido a MercadoPago. Al finalizar el pago, volverás automáticamente al sitio.
                 </p>
             </div>
         </Modal>

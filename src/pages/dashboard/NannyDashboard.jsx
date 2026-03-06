@@ -20,7 +20,7 @@ import { DeleteAccountModal } from '../../components/dashboard/DeleteAccountModa
  */
 export const NannyDashboard = () => {
     const { user, profile } = useAuth();
-    const { isSubscribed, expiresAt, subscribe, refetch: refetchSub } = useSubscription();
+    const { isSubscribed, expiresAt, subscribe } = useSubscription();
 
     const [vacancies, setVacancies] = useState([]);
     const [myAvailability, setMyAvailability] = useState(null);
@@ -100,7 +100,7 @@ export const NannyDashboard = () => {
                 <SubscriptionBanner
                     isSubscribed={isSubscribed}
                     expiresAt={expiresAt}
-                    onRenew={async () => { await subscribe(); setTimeout(refetchSub, 3000); }}
+                    onRenew={subscribe}
                 />
 
                 {/* Info: rankings desde nina-app */}
@@ -234,10 +234,7 @@ export const NannyDashboard = () => {
             <SubscriptionModal
                 isOpen={showSubModal}
                 onClose={() => setShowSubModal(false)}
-                onSubscribe={async () => {
-                    await subscribe();
-                    setTimeout(refetchSub, 3000);
-                }}
+                onSubscribe={subscribe}
             />
             <DeleteAccountModal
                 isOpen={showDeleteModal}

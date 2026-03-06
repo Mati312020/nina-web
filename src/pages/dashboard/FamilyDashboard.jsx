@@ -20,7 +20,7 @@ import { DeleteAccountModal } from '../../components/dashboard/DeleteAccountModa
  */
 export const FamilyDashboard = () => {
     const { user, profile } = useAuth();
-    const { isSubscribed, expiresAt, subscribe, refetch: refetchSub } = useSubscription();
+    const { isSubscribed, expiresAt, subscribe } = useSubscription();
 
     const [nannies, setNannies] = useState([]);
     const [myVacancies, setMyVacancies] = useState([]);
@@ -96,7 +96,7 @@ export const FamilyDashboard = () => {
                 <SubscriptionBanner
                     isSubscribed={isSubscribed}
                     expiresAt={expiresAt}
-                    onRenew={async () => { await subscribe(); setTimeout(refetchSub, 3000); }}
+                    onRenew={subscribe}
                 />
 
                 {/* Info: rankings desde nina-app */}
@@ -233,11 +233,7 @@ export const FamilyDashboard = () => {
             <SubscriptionModal
                 isOpen={showSubModal}
                 onClose={() => setShowSubModal(false)}
-                onSubscribe={async () => {
-                    await subscribe();
-                    // Re-verificar suscripción después de iniciar el pago
-                    setTimeout(refetchSub, 3000);
-                }}
+                onSubscribe={subscribe}
             />
             <DeleteAccountModal
                 isOpen={showDeleteModal}
