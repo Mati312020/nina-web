@@ -6,6 +6,30 @@ import { Input } from '../../components/ui/Input';
 import { Card } from '../../components/ui/Card';
 import logo from '../../assets/logo.png';
 
+// ── Componente reutilizable de paso ──────────────────────────────────────────
+const Step = ({ label, done, active }) => (
+    <div className={`flex items-center gap-3 text-sm font-nunito transition-colors duration-500 ${
+        done   ? 'text-green-600' :
+        active ? 'text-gray-800'  :
+                 'text-gray-300'
+    }`}>
+        <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 transition-colors duration-500 ${
+            done   ? 'bg-green-500'              :
+            active ? 'bg-primary animate-pulse'  :
+                     'bg-gray-200'
+        }`}>
+            {done ? (
+                <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+            ) : (
+                <div className="w-1.5 h-1.5 rounded-full bg-white opacity-80" />
+            )}
+        </div>
+        <span className={active ? 'font-medium' : ''}>{label}</span>
+    </div>
+);
+
 export const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -15,6 +39,9 @@ export const LoginPage = () => {
     const [forgotEmail, setForgotEmail] = useState('');
     const [forgotLoading, setForgotLoading] = useState(false);
     const [forgotSent, setForgotSent] = useState(false);
+    // true entre el submit exitoso y la navegación final
+    const [loginSubmitted, setLoginSubmitted] = useState(false);
+
     const { login, googleLogin, resetPassword, profile } = useAuth();
     const navigate = useNavigate();
 
@@ -31,11 +58,13 @@ export const LoginPage = () => {
         e.preventDefault();
         setLoading(true);
         setError('');
+        setLoginSubmitted(true);          // activar vista de pasos
         try {
             await login(email, password);
             // La redirección la maneja el useEffect de arriba cuando profile se actualice
         } catch (err) {
             setError('Credenciales incorrectas o error en el servidor.');
+            setLoginSubmitted(false);     // volver al formulario si falló
         } finally {
             setLoading(false);
         }
@@ -67,6 +96,12 @@ export const LoginPage = () => {
         }
     };
 
+    // ── Estados de cada paso ────────────────────────────────────────────────
+    // Paso 1: supabase.signInWithPassword completó (loading vuelve a false)
+    const step1Done = loginSubmitted && !loading;
+    // Paso 2: AuthContext seteó el perfil (fetchProfile completó)
+    const step2Done = step1Done && !!profile;
+
     return (
         <div className="min-h-[80vh] flex items-center justify-center p-4 bg-gray-50">
             <Card className="w-full max-w-md p-8 border-none shadow-xl">
@@ -96,8 +131,31 @@ export const LoginPage = () => {
                     </div>
                 )}
 
-                {/* ── Modo "Olvidé mi contraseña" ── */}
-                {forgotMode ? (
+                {/* ── Modo pasos (post-submit exitoso) ── */}
+                {loginSubmitted ? (
+                    <div className="flex flex-col items-center gap-6 py-4">
+                        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                        <div className="flex flex-col gap-4">
+                            <Step
+                                label="Verificando credenciales"
+                                done={step1Done}
+                                active={!step1Done}
+                            />
+                            <Step
+                                label="Cargando perfil"
+                                done={step2Done}
+                                active={step1Done && !step2Done}
+                            />
+                            <Step
+                                label="Redirigiendo al panel"
+                                done={false}
+                                active={step2Done}
+                            />
+                        </div>
+                    </div>
+
+                ) : forgotMode ? (
+                    /* ── Modo "Olvidé mi contraseña" ── */
                     forgotSent ? (
                         <div className="text-center space-y-4">
                             <div className="bg-green-50 border border-green-200 rounded-xl p-4">
@@ -138,6 +196,7 @@ export const LoginPage = () => {
                             </button>
                         </form>
                     )
+
                 ) : (
                     /* ── Modo login normal ── */
                     <>
