@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { X, User, MapPin, FileText, Trash2, ChevronDown, ChevronUp, Camera } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { X, User, MapPin, FileText, Trash2, ChevronDown, ChevronUp, Camera, Shield } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { Button } from '../ui/Button';
@@ -43,6 +44,8 @@ export const EditProfileModal = ({ isOpen, onClose }) => {
     const [error, setError]   = useState('');
     const [saved, setSaved]   = useState(false);
     const [showDelete, setShowDelete] = useState(false);
+    const [showPhotoInput, setShowPhotoInput] = useState(false);
+    const [imgError, setImgError] = useState(false);
 
     // Pre-poblar con datos actuales del perfil
     useEffect(() => {
@@ -64,9 +67,14 @@ export const EditProfileModal = ({ isOpen, onClose }) => {
         });
         setError('');
         setSaved(false);
+        setShowPhotoInput(false);
+        setImgError(false);
     }, [profile, isOpen]);
 
-    const set = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
+    const set = (field) => (e) => {
+        if (field === 'profile_image_url') setImgError(false);
+        setForm((f) => ({ ...f, [field]: e.target.value }));
+    };
 
     const handleSave = async (e) => {
         e.preventDefault();
@@ -96,6 +104,8 @@ export const EditProfileModal = ({ isOpen, onClose }) => {
             await api.put(`/users/me?auth_id=${user.id}`, payload);
             await refreshProfile();
             setSaved(true);
+            setShowPhotoInput(false);
+            setImgError(false);
         } catch (err) {
             setError('Error al guardar. Intentá de nuevo.');
         } finally {
@@ -108,6 +118,9 @@ export const EditProfileModal = ({ isOpen, onClose }) => {
     // Iniciales para el avatar
     const initials = (profile?.full_name || '?')
         .split(' ').slice(0, 2).map((w) => w[0]?.toUpperCase()).join('');
+
+    // Foto a previsualizar (usa form.profile_image_url para mostrar cambios antes de guardar)
+    const previewUrl = form.profile_image_url || null;
 
     return (
         <>
@@ -124,7 +137,7 @@ export const EditProfileModal = ({ isOpen, onClose }) => {
 
                     {/* Header fijo */}
                     <div className="flex items-center gap-4 px-6 py-5 border-b border-gray-100 flex-shrink-0">
-                        {/* Avatar */}
+                        {/* Avatar pequeño en header */}
                         <div className="relative flex-shrink-0">
                             {profile?.profile_image_url ? (
                                 <img
@@ -164,6 +177,51 @@ export const EditProfileModal = ({ isOpen, onClose }) => {
                     {/* Contenido scrollable */}
                     <form onSubmit={handleSave} className="overflow-y-auto flex-1 px-6 py-5 space-y-4">
 
+                        {/* Foto de perfil — centrada, tamaño mediano */}
+                        <div className="flex flex-col items-center gap-3 py-2">
+                            <div className="relative">
+                                {previewUrl && !imgError ? (
+                                    <img
+                                        src={previewUrl}
+                                        alt="Foto de perfil"
+                                        className="w-24 h-24 rounded-full object-cover border-4 border-primary/20 shadow"
+                                        onError={() => setImgError(true)}
+                                    />
+                                ) : (
+                                    <div className="w-24 h-24 rounded-full bg-primary/10 border-4 border-primary/20 shadow flex items-center justify-center">
+                                        <span className="text-primary font-bold font-poppins text-2xl">{initials}</span>
+                                    </div>
+                                )}
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPhotoInput((v) => !v)}
+                                    className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-primary shadow flex items-center justify-center border-2 border-white hover:bg-primary/90 transition-colors"
+                                    title="Cambiar foto"
+                                >
+                                    <Camera size={14} className="text-white" />
+                                </button>
+                            </div>
+                            <span className="text-xs text-gray-400 font-nunito">
+                                {previewUrl ? profile?.full_name : 'Sin foto de perfil'}
+                            </span>
+
+                            {/* Input de URL — solo visible al hacer clic en la cámara */}
+                            {showPhotoInput && (
+                                <div className="w-full max-w-sm">
+                                    <Input
+                                        label="URL de la foto"
+                                        type="url"
+                                        placeholder="https://... (link directo a tu imagen)"
+                                        value={form.profile_image_url || ''}
+                                        onChange={set('profile_image_url')}
+                                    />
+                                    <p className="text-xs text-gray-400 font-nunito mt-1 text-center">
+                                        Pegá el link de una foto tuya (Google Drive, Imgur, etc.)
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+
                         {/* Datos personales */}
                         <Section icon={User} title="Datos personales">
                             <div className="grid grid-cols-2 gap-3">
@@ -193,13 +251,6 @@ export const EditProfileModal = ({ isOpen, onClose }) => {
                                 placeholder="tu@email.com"
                                 value={form.notification_email || ''}
                                 onChange={set('notification_email')}
-                            />
-                            <Input
-                                label="URL de foto de perfil"
-                                type="url"
-                                placeholder="https://..."
-                                value={form.profile_image_url || ''}
-                                onChange={set('profile_image_url')}
                             />
                         </Section>
 
@@ -288,6 +339,23 @@ export const EditProfileModal = ({ isOpen, onClose }) => {
                                 </div>
                             )}
                         </Section>
+
+                        {/* Documentos legales */}
+                        <div className="border border-gray-100 rounded-xl px-4 py-3 flex items-center gap-3 bg-gray-50/60">
+                            <Shield size={15} className="text-primary flex-shrink-0" />
+                            <p className="flex-1 text-xs text-gray-500 font-nunito">
+                                Podés consultar nuestros{' '}
+                                <Link
+                                    to="/legal/privacidad"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-primary underline underline-offset-2 hover:text-primary/80 font-medium"
+                                >
+                                    Términos y Política de Privacidad
+                                </Link>{' '}
+                                en cualquier momento.
+                            </p>
+                        </div>
 
                         {/* Zona de peligro */}
                         <div className="border border-red-100 rounded-xl bg-red-50/40">
