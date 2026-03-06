@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Clock, Calendar, CheckCircle, Info, Briefcase } from 'lucide-react';
+import { Plus, Clock, Calendar, CheckCircle, Info, Briefcase, UserCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { useSubscription } from '../../hooks/useSubscription';
@@ -10,7 +10,7 @@ import { FamilyVacancyCard } from '../../components/dashboard/FamilyVacancyCard'
 import { AvailabilityModal } from '../../components/dashboard/AvailabilityModal';
 import { SubscriptionModal } from '../../components/dashboard/SubscriptionModal';
 import { SubscriptionBanner } from '../../components/dashboard/SubscriptionBanner';
-import { DeleteAccountModal } from '../../components/dashboard/DeleteAccountModal';
+import { EditProfileModal } from '../../components/dashboard/EditProfileModal';
 
 /**
  * Dashboard para niñeras.
@@ -27,7 +27,7 @@ export const NannyDashboard = () => {
     const [loadingVacancies, setLoadingVacancies] = useState(true);
     const [showAvailModal, setShowAvailModal] = useState(false);
     const [showSubModal, setShowSubModal] = useState(false);
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showProfileModal, setShowProfileModal] = useState(false);
 
     const fetchVacancies = useCallback(async () => {
         if (!user) return;
@@ -86,10 +86,23 @@ export const NannyDashboard = () => {
                             Explorá oportunidades de trabajo largo plazo
                         </p>
                     </div>
-                    <Button onClick={() => setShowAvailModal(true)} className="gap-2 self-start sm:self-auto">
-                        <Plus size={18} />
-                        {myAvailability ? 'Actualizar Disponibilidad' : 'Publicarme como Disponible'}
-                    </Button>
+                    <div className="flex items-center gap-3 self-start sm:self-auto">
+                        <button
+                            onClick={() => setShowProfileModal(true)}
+                            className="flex items-center gap-2 text-sm text-gray-600 hover:text-primary transition-colors font-nunito font-medium border border-gray-200 hover:border-primary/40 rounded-xl px-3 py-2 bg-white hover:bg-primary/5"
+                        >
+                            {profile?.profile_image_url ? (
+                                <img src={profile.profile_image_url} alt="" className="w-6 h-6 rounded-full object-cover" />
+                            ) : (
+                                <UserCircle size={18} className="text-gray-400" />
+                            )}
+                            Mi perfil
+                        </button>
+                        <Button onClick={() => setShowAvailModal(true)} className="gap-2">
+                            <Plus size={18} />
+                            {myAvailability ? 'Actualizar Disponibilidad' : 'Publicarme como Disponible'}
+                        </Button>
+                    </div>
                 </div>
             </div>
 
@@ -214,15 +227,6 @@ export const NannyDashboard = () => {
                     )}
                 </section>
 
-                {/* Zona de peligro */}
-                <section className="pt-4 border-t border-gray-100">
-                    <button
-                        onClick={() => setShowDeleteModal(true)}
-                        className="text-sm text-gray-400 hover:text-danger transition-colors font-nunito underline underline-offset-2"
-                    >
-                        Eliminar mi cuenta
-                    </button>
-                </section>
             </div>
 
             {/* Modals */}
@@ -236,11 +240,9 @@ export const NannyDashboard = () => {
                 onClose={() => setShowSubModal(false)}
                 onSubscribe={subscribe}
             />
-            <DeleteAccountModal
-                isOpen={showDeleteModal}
-                onClose={() => setShowDeleteModal(false)}
-                authId={user?.id}
-                onSuccess={() => window.location.href = '/'}
+            <EditProfileModal
+                isOpen={showProfileModal}
+                onClose={() => setShowProfileModal(false)}
             />
         </div>
     );

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Calendar, Clock, MapPin, Info, Search } from 'lucide-react';
+import { Plus, Calendar, Clock, MapPin, Info, Search, UserCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { useSubscription } from '../../hooks/useSubscription';
@@ -10,7 +10,7 @@ import { NannyCard } from '../../components/dashboard/NannyCard';
 import { VacancyModal } from '../../components/dashboard/VacancyModal';
 import { SubscriptionModal } from '../../components/dashboard/SubscriptionModal';
 import { SubscriptionBanner } from '../../components/dashboard/SubscriptionBanner';
-import { DeleteAccountModal } from '../../components/dashboard/DeleteAccountModal';
+import { EditProfileModal } from '../../components/dashboard/EditProfileModal';
 
 /**
  * Dashboard para familias.
@@ -27,7 +27,7 @@ export const FamilyDashboard = () => {
     const [loadingNannies, setLoadingNannies] = useState(true);
     const [showVacancyModal, setShowVacancyModal] = useState(false);
     const [showSubModal, setShowSubModal] = useState(false);
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showProfileModal, setShowProfileModal] = useState(false);
 
     const fetchNannies = useCallback(async () => {
         if (!user) return;
@@ -82,10 +82,23 @@ export const FamilyDashboard = () => {
                             Encontrá tu niñera ideal para largo plazo
                         </p>
                     </div>
-                    <Button onClick={() => setShowVacancyModal(true)} className="gap-2 self-start sm:self-auto">
-                        <Plus size={18} />
-                        Publicar Vacante
-                    </Button>
+                    <div className="flex items-center gap-3 self-start sm:self-auto">
+                        <button
+                            onClick={() => setShowProfileModal(true)}
+                            className="flex items-center gap-2 text-sm text-gray-600 hover:text-primary transition-colors font-nunito font-medium border border-gray-200 hover:border-primary/40 rounded-xl px-3 py-2 bg-white hover:bg-primary/5"
+                        >
+                            {profile?.profile_image_url ? (
+                                <img src={profile.profile_image_url} alt="" className="w-6 h-6 rounded-full object-cover" />
+                            ) : (
+                                <UserCircle size={18} className="text-gray-400" />
+                            )}
+                            Mi perfil
+                        </button>
+                        <Button onClick={() => setShowVacancyModal(true)} className="gap-2">
+                            <Plus size={18} />
+                            Publicar Vacante
+                        </Button>
+                    </div>
                 </div>
             </div>
 
@@ -213,15 +226,6 @@ export const FamilyDashboard = () => {
                     )}
                 </section>
 
-                {/* Zona de peligro */}
-                <section className="pt-4 border-t border-gray-100">
-                    <button
-                        onClick={() => setShowDeleteModal(true)}
-                        className="text-sm text-gray-400 hover:text-danger transition-colors font-nunito underline underline-offset-2"
-                    >
-                        Eliminar mi cuenta
-                    </button>
-                </section>
             </div>
 
             {/* Modals */}
@@ -235,11 +239,9 @@ export const FamilyDashboard = () => {
                 onClose={() => setShowSubModal(false)}
                 onSubscribe={subscribe}
             />
-            <DeleteAccountModal
-                isOpen={showDeleteModal}
-                onClose={() => setShowDeleteModal(false)}
-                authId={user?.id}
-                onSuccess={() => window.location.href = '/'}
+            <EditProfileModal
+                isOpen={showProfileModal}
+                onClose={() => setShowProfileModal(false)}
             />
         </div>
     );
