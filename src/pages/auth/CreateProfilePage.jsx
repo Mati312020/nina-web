@@ -5,7 +5,7 @@ import { api } from '../../lib/api';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Card } from '../../components/ui/Card';
-import { MapPin } from 'lucide-react';
+import { MapPin, Camera } from 'lucide-react';
 
 // Provincias de Argentina — permite filtrar por región al escalar a otras localidades
 const PROVINCIAS_AR = [
@@ -23,6 +23,8 @@ export const CreateProfilePage = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [showPhotoInput, setShowPhotoInput] = useState(false);
+    const [imgError, setImgError] = useState(false);
 
     const [formData, setFormData] = useState({
         first_name: '',
@@ -34,9 +36,11 @@ export const CreateProfilePage = () => {
         address: '',
         bio: '',
         experience_years: '',
+        profile_image_url: '',
     });
 
     const handleChange = (e) => {
+        if (e.target.name === 'profile_image_url') setImgError(false);
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
@@ -57,6 +61,7 @@ export const CreateProfilePage = () => {
                 neighborhood: formData.neighborhood || null,
                 address: formData.address || null,
                 bio: formData.bio || null,
+                profile_image_url: formData.profile_image_url || null,
                 role: type,
                 ...(type === 'nanny' && formData.experience_years !== '' && {
                     experience_years: parseInt(formData.experience_years, 10),
@@ -82,6 +87,14 @@ export const CreateProfilePage = () => {
 
     const isNanny = type === 'nanny';
 
+    // Iniciales en base a lo que va escribiendo el usuario
+    const initials = [formData.first_name, formData.last_name]
+        .filter(Boolean)
+        .map((w) => w[0]?.toUpperCase())
+        .join('') || '?';
+
+    const previewUrl = !imgError && formData.profile_image_url ? formData.profile_image_url : null;
+
     return (
         <div className="min-h-[80vh] flex items-center justify-center p-4 bg-gray-50 py-12">
             <Card className="max-w-2xl w-full p-8">
@@ -92,6 +105,47 @@ export const CreateProfilePage = () => {
                     <p className="text-gray-500 font-nunito">
                         Estos datos nos permiten conectarte con {isNanny ? 'familias' : 'niñeras'} de tu zona.
                     </p>
+                </div>
+
+                {/* Avatar con botón cámara */}
+                <div className="flex flex-col items-center mb-8">
+                    <div className="relative w-24 h-24">
+                        {previewUrl ? (
+                            <img
+                                src={previewUrl}
+                                alt="Foto de perfil"
+                                className="w-24 h-24 rounded-full object-cover border-4 border-primary/20"
+                                onError={() => setImgError(true)}
+                            />
+                        ) : (
+                            <div className="w-24 h-24 rounded-full bg-primary/10 border-4 border-primary/20 flex items-center justify-center">
+                                <span className="text-primary font-bold font-poppins text-2xl">{initials}</span>
+                            </div>
+                        )}
+                        <button
+                            type="button"
+                            onClick={() => setShowPhotoInput((v) => !v)}
+                            className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-md hover:bg-primary/90 transition-colors"
+                            title="Agregar foto de perfil"
+                        >
+                            <Camera size={14} className="text-white" />
+                        </button>
+                    </div>
+                    {showPhotoInput && (
+                        <div className="mt-3 w-full max-w-sm">
+                            <Input
+                                label="URL de tu foto de perfil"
+                                name="profile_image_url"
+                                type="url"
+                                placeholder="https://..."
+                                value={formData.profile_image_url}
+                                onChange={handleChange}
+                            />
+                            {imgError && (
+                                <p className="text-xs text-danger mt-1 ml-1">La URL no cargó. Revisá que sea una imagen válida.</p>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 {error && (
