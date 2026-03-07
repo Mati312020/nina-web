@@ -50,8 +50,8 @@ export const SubscriptionModal = ({ isOpen, onClose, onSubscribe }) => {
 
                 {/* Precio */}
                 <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 text-center">
-                    <p className="text-4xl font-bold text-primary font-poppins">$2 USD</p>
-                    <p className="text-gray-500 text-sm mt-1">≈ 2.000 ARS · 30 días de acceso completo</p>
+                    <p className="text-4xl font-bold text-primary font-poppins">$2.500 ARS</p>
+                    <p className="text-gray-500 text-sm mt-1">30 días de acceso completo</p>
                 </div>
 
                 {/* Beneficios */}
