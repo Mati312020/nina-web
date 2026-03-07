@@ -57,8 +57,41 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     useEffect(() => {
+        let cancelled = false;
+
+        // ── Fase 1: hidratación explícita ──────────────────────────────────────
+        // getSession() aguarda la initializePromise de Supabase antes de resolver,
+        // garantizando que la sesión se restaura desde localStorage ANTES de
+        // decidir si el usuario está autenticado.
+        // Esto evita la race condition donde INITIAL_SESSION resuelve con null
+        // mientras _initialize() aún está corriendo (ej: al volver de un redirect
+        // de pago en MercadoPago con full page reload).
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (cancelled) return;
+            setLoggerUser(session?.user?.id ?? null);
+            setUser(session?.user ?? null);
+            if (session?.user) {
+                if (!isFetchingRef.current) {
+                    logger.info('auth.getSession', 'sesion_restaurada', {
+                        user_id: session.user.id,
+                        email:   session.user.email,
+                    });
+                    isFetchingRef.current = true;
+                    fetchProfile(session.user.id, session.user.email);
+                }
+            } else {
+                logger.info('auth.getSession', 'sin_sesion', {});
+                setLoading(false);
+            }
+        });
+
+        // ── Fase 2: cambios POST-inicialización ────────────────────────────────
+        // INITIAL_SESSION ya está manejado arriba por getSession().
+        // TOKEN_REFRESHED solo renueva el JWT sin cambiar user.id — no necesitamos
+        // re-fetchear perfil (el backend usa auth_id, no el JWT).
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            if (_event === 'TOKEN_REFRESHED') return;
+            if (cancelled) return;
+            if (_event === 'INITIAL_SESSION' || _event === 'TOKEN_REFRESHED') return;
 
             // Actualizar el user_id en el logger para todos los eventos siguientes
             setLoggerUser(session?.user?.id ?? null);
@@ -67,7 +100,6 @@ export const AuthProvider = ({ children }) => {
             if (session?.user) {
                 if (isFetchingRef.current) {
                     logger.debug('auth.onAuthStateChange', 'evento_ignorado_fetch_en_curso', { event: _event });
-                    console.log(`[Auth] ${_event} ignorado — fetchProfile ya en curso`);
                     return;
                 }
                 logger.info('auth.onAuthStateChange', 'sesion_iniciada', {
@@ -86,7 +118,10 @@ export const AuthProvider = ({ children }) => {
             }
         });
 
-        return () => subscription.unsubscribe();
+        return () => {
+            cancelled = true;
+            subscription.unsubscribe();
+        };
     }, [fetchProfile]);
 
     const login = async (email, password) => {
