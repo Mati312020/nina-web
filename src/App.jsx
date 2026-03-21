@@ -11,6 +11,11 @@ import { CreateProfilePage } from './pages/auth/CreateProfilePage';
 import { FamilyDashboard } from './pages/dashboard/FamilyDashboard';
 import { NannyDashboard } from './pages/dashboard/NannyDashboard';
 import { PaymentResult } from './pages/PaymentResult';
+import { PaymentBookingResult } from './pages/PaymentBookingResult';
+import { MpCallbackPage } from './pages/MpCallbackPage';
+import { SearchNanniesPage } from './pages/booking/SearchNanniesPage';
+import { ProposalPage } from './pages/booking/ProposalPage';
+import { ConfirmationPage } from './pages/booking/ConfirmationPage';
 import { AuthCallback } from './pages/auth/AuthCallback';
 import { RecoveryPage } from './pages/auth/RecoveryPage';
 import { PrivacyPolicyPage } from './pages/legal/PrivacyPolicyPage';
@@ -112,6 +117,15 @@ function App() {
                         <Route path="/payment/success" element={<ProtectedRoute><PaymentResult outcome="success" /></ProtectedRoute>} />
                         <Route path="/payment/failure" element={<ProtectedRoute><PaymentResult outcome="failure" /></ProtectedRoute>} />
                         <Route path="/payment/pending" element={<ProtectedRoute><PaymentResult outcome="pending" /></ProtectedRoute>} />
+
+                        {/* Flujo de reserva last-minute (requiere auth) */}
+                        <Route path="/booking/search" element={<ProtectedRoute><SearchNanniesPage /></ProtectedRoute>} />
+                        <Route path="/booking/proposal" element={<ProtectedRoute><ProposalPage /></ProtectedRoute>} />
+                        <Route path="/booking/confirmation" element={<ProtectedRoute><ConfirmationPage /></ProtectedRoute>} />
+                        <Route path="/booking/payment/:outcome" element={<ProtectedRoute><PaymentBookingResult /></ProtectedRoute>} />
+
+                        {/* Callback OAuth MercadoPago (público — MP redirige aquí tras autorizar) */}
+                        <Route path="/mp-conectado" element={<MpCallbackPage />} />
 
                         {/* Páginas legales */}
                         <Route path="/legal/privacidad" element={<PrivacyPolicyPage />} />

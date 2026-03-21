@@ -11,6 +11,7 @@ import { AvailabilityModal } from '../../components/dashboard/AvailabilityModal'
 import { SubscriptionModal } from '../../components/dashboard/SubscriptionModal';
 import { SubscriptionBanner } from '../../components/dashboard/SubscriptionBanner';
 import { EditProfileModal } from '../../components/dashboard/EditProfileModal';
+import { NotificationArea } from '../../components/dashboard/NotificationArea';
 
 /**
  * Dashboard para niñeras.
@@ -108,6 +109,9 @@ export const NannyDashboard = () => {
 
             {/* Contenido */}
             <div className="max-w-6xl mx-auto px-6 py-8 space-y-12">
+
+                {/* Solicitudes last-minute pendientes */}
+                <NotificationArea />
 
                 {/* Banner de vencimiento de suscripción */}
                 <SubscriptionBanner

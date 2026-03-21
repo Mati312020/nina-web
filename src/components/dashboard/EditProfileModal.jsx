@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { X, User, MapPin, FileText, Trash2, ChevronDown, ChevronUp, Camera, Shield } from 'lucide-react';
+import { X, User, MapPin, FileText, Trash2, ChevronDown, ChevronUp, Camera, Shield, Plus, Baby, CreditCard } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { DeleteAccountModal } from './DeleteAccountModal';
+import { useMpConnect } from '../../hooks/useMpConnect';
 
 const PROVINCIAS_AR = [
     'Buenos Aires', 'CABA', 'Catamarca', 'Chaco', 'Chubut', 'Córdoba',
@@ -40,12 +41,20 @@ export const EditProfileModal = ({ isOpen, onClose }) => {
     const isNanny = profile?.role === 'nanny';
 
     const [form, setForm] = useState({});
+    const [children, setChildren] = useState([]); // para familias
     const [loading, setLoading] = useState(false);
     const [error, setError]   = useState('');
     const [saved, setSaved]   = useState(false);
     const [showDelete, setShowDelete] = useState(false);
     const [showPhotoInput, setShowPhotoInput] = useState(false);
     const [imgError, setImgError] = useState(false);
+    const [mpDisconnecting, setMpDisconnecting] = useState(false);
+    const [mpConfirm, setMpConfirm] = useState(false);
+
+    // Hook de MP — solo activo si es niñera
+    const { status: mpStatus, loading: mpLoading, connect: mpConnect, disconnect: mpDisconnectFn, refresh: mpRefresh } = useMpConnect(
+        isNanny ? profile?.id : null
+    );
 
     // Pre-poblar con datos actuales del perfil
     useEffect(() => {
@@ -65,10 +74,13 @@ export const EditProfileModal = ({ isOpen, onClose }) => {
             household_rules:    profile.household_rules    ?? '',
             profile_image_url:  profile.profile_image_url  ?? '',
         });
+        // Inicializar hijos desde el perfil (familias)
+        setChildren((profile.children ?? []).map(c => ({ ...c })));
         setError('');
         setSaved(false);
         setShowPhotoInput(false);
         setImgError(false);
+        setMpConfirm(false);
     }, [profile, isOpen]);
 
     const set = (field) => (e) => {
@@ -101,6 +113,16 @@ export const EditProfileModal = ({ isOpen, onClose }) => {
                 }),
                 ...(!isNanny && { household_rules: form.household_rules || null }),
             };
+            // Incluir hijos en el payload para familias
+            if (!isNanny) {
+                payload.children = children.map(c => ({
+                    ...(c.id ? { id: c.id } : {}),
+                    nickname:             c.nickname || '',
+                    age:                  parseInt(c.age, 10) || 0,
+                    medical_notes:        c.medical_notes || null,
+                    special_instructions: c.special_instructions || null,
+                }));
+            }
             await api.put(`/users/me?auth_id=${user.id}`, payload);
             await refreshProfile();
             setSaved(true);
@@ -110,6 +132,31 @@ export const EditProfileModal = ({ isOpen, onClose }) => {
             setError('Error al guardar. Intentá de nuevo.');
         } finally {
             setLoading(false);
+        }
+    };
+
+    // ── Helpers de hijos (solo familias) ─────────────────────────────────────
+    const addChild = () => setChildren(prev => [
+        ...prev,
+        { nickname: '', age: '', medical_notes: '', special_instructions: '' }
+    ]);
+
+    const removeChild = (idx) => setChildren(prev => prev.filter((_, i) => i !== idx));
+
+    const updateChild = (idx, field, value) => setChildren(prev =>
+        prev.map((c, i) => i === idx ? { ...c, [field]: value } : c)
+    );
+
+    // ── Handler de desconectar MP ─────────────────────────────────────────────
+    const handleMpDisconnect = async () => {
+        setMpDisconnecting(true);
+        try {
+            await mpDisconnectFn();
+            setMpConfirm(false);
+        } catch {
+            // error ya loggeado en el hook
+        } finally {
+            setMpDisconnecting(false);
         }
     };
 
@@ -339,6 +386,159 @@ export const EditProfileModal = ({ isOpen, onClose }) => {
                                 </div>
                             )}
                         </Section>
+
+                        {/* Hijos — solo familias */}
+                        {!isNanny && (
+                            <Section icon={Baby} title="Mis Hijos" defaultOpen={true}>
+                                {children.length === 0 && (
+                                    <p className="text-sm text-gray-400 text-center py-2">
+                                        Aún no agregaste ningún hijo/a.
+                                    </p>
+                                )}
+                                {children.map((child, idx) => (
+                                    <div key={idx} className="border border-gray-200 rounded-xl p-3 space-y-2 relative">
+                                        <button
+                                            type="button"
+                                            onClick={() => removeChild(idx)}
+                                            className="absolute top-2 right-2 text-gray-300 hover:text-danger transition-colors"
+                                            title="Eliminar"
+                                        >
+                                            <Trash2 size={14} />
+                                        </button>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <Input
+                                                label="Apodo / Nombre *"
+                                                placeholder="Ej: Sofi"
+                                                value={child.nickname || ''}
+                                                onChange={e => updateChild(idx, 'nickname', e.target.value)}
+                                                required
+                                            />
+                                            <Input
+                                                label="Edad *"
+                                                type="number"
+                                                min="0"
+                                                max="17"
+                                                placeholder="Ej: 4"
+                                                value={child.age || ''}
+                                                onChange={e => updateChild(idx, 'age', e.target.value)}
+                                                required
+                                            />
+                                        </div>
+                                        <Input
+                                            label="Notas médicas"
+                                            placeholder="Alergias, medicación, etc."
+                                            value={child.medical_notes || ''}
+                                            onChange={e => updateChild(idx, 'medical_notes', e.target.value)}
+                                        />
+                                        <Input
+                                            label="Instrucciones especiales"
+                                            placeholder="Hora de siesta, comidas, etc."
+                                            value={child.special_instructions || ''}
+                                            onChange={e => updateChild(idx, 'special_instructions', e.target.value)}
+                                        />
+                                    </div>
+                                ))}
+                                <button
+                                    type="button"
+                                    onClick={addChild}
+                                    className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-gray-200
+                                               rounded-xl py-2.5 text-sm text-gray-500 hover:border-primary hover:text-primary transition-colors"
+                                >
+                                    <Plus size={15} />
+                                    Agregar hijo/a
+                                </button>
+                            </Section>
+                        )}
+
+                        {/* Cuenta MercadoPago — solo niñeras */}
+                        {isNanny && (
+                            <Section icon={CreditCard} title="Cuenta MercadoPago" defaultOpen={true}>
+                                {mpLoading ? (
+                                    <div className="h-10 bg-gray-100 rounded animate-pulse" />
+                                ) : (
+                                    <div className="space-y-3">
+                                        {/* Estado de conexión */}
+                                        <div className="flex items-center gap-3">
+                                            <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+                                                mpStatus?.connected && !mpStatus?.needs_reconnect
+                                                    ? 'bg-green-500'
+                                                    : mpStatus?.connected && mpStatus?.needs_reconnect
+                                                        ? 'bg-amber-500'
+                                                        : 'bg-gray-400'
+                                            }`} />
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-800">
+                                                    {mpStatus?.connected && !mpStatus?.needs_reconnect
+                                                        ? 'Cuenta conectada'
+                                                        : mpStatus?.connected && mpStatus?.needs_reconnect
+                                                            ? 'Token vencido — reconectá tu cuenta'
+                                                            : 'Sin cuenta vinculada'
+                                                    }
+                                                </p>
+                                                {mpStatus?.mp_account_email && (
+                                                    <p className="text-xs text-gray-500">{mpStatus.mp_account_email}</p>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Info */}
+                                        <p className="text-xs text-gray-500 bg-gray-50 rounded-xl px-3 py-2">
+                                            Al vincular tu cuenta, Nina puede dividir los pagos automáticamente.
+                                            El dinero llega directamente a tu cuenta MP.
+                                        </p>
+
+                                        {/* Acciones */}
+                                        <div className="flex gap-2">
+                                            {(!mpStatus?.connected || mpStatus?.needs_reconnect) && (
+                                                <Button
+                                                    type="button"
+                                                    variant="primary"
+                                                    className="flex-1 text-sm"
+                                                    onClick={mpConnect}
+                                                >
+                                                    {mpStatus?.needs_reconnect ? 'Reconectar MercadoPago' : 'Conectar MercadoPago'}
+                                                </Button>
+                                            )}
+                                            {mpStatus?.connected && !mpStatus?.needs_reconnect && (
+                                                <>
+                                                    {!mpConfirm ? (
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            className="text-sm text-danger border border-red-200 hover:bg-red-50"
+                                                            onClick={() => setMpConfirm(true)}
+                                                        >
+                                                            Desconectar
+                                                        </Button>
+                                                    ) : (
+                                                        <div className="flex gap-2 w-full">
+                                                            <Button
+                                                                type="button"
+                                                                variant="ghost"
+                                                                className="flex-1 text-sm"
+                                                                onClick={() => setMpConfirm(false)}
+                                                                disabled={mpDisconnecting}
+                                                            >
+                                                                Cancelar
+                                                            </Button>
+                                                            <Button
+                                                                type="button"
+                                                                variant="ghost"
+                                                                className="flex-1 text-sm text-danger border border-red-200 hover:bg-red-50"
+                                                                onClick={handleMpDisconnect}
+                                                                isLoading={mpDisconnecting}
+                                                            >
+                                                                Confirmar
+                                                            </Button>
+                                                        </div>
+                                                    )}
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </Section>
+                        )}
 
                         {/* Documentos legales */}
                         <div className="border border-gray-100 rounded-xl px-4 py-3 flex items-center gap-3 bg-gray-50/60">

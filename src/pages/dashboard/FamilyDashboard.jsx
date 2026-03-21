@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Calendar, Clock, MapPin, Info, Search, UserCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, Calendar, Clock, MapPin, Info, Search, UserCircle, Sparkles, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { useSubscription } from '../../hooks/useSubscription';
@@ -67,6 +68,18 @@ export const FamilyDashboard = () => {
         }
     };
 
+    const navigate = useNavigate();
+
+    // Reserva activa de la familia
+    const [activeBooking, setActiveBooking] = useState(null);
+
+    useEffect(() => {
+        if (!profile?.id) return;
+        api.get(`/bookings/focus/family/${profile.id}`)
+            .then((data) => setActiveBooking(data?.id ? data : null))
+            .catch(() => {});
+    }, [profile?.id]);
+
     const firstName = profile?.full_name?.split(' ')[0] ?? 'Familia';
 
     return (
@@ -111,6 +124,76 @@ export const FamilyDashboard = () => {
                     expiresAt={expiresAt}
                     onRenew={subscribe}
                 />
+
+                {/* CTA: Buscar niñera urgente */}
+                <div className="bg-gradient-to-r from-primary to-primary/80 rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-sm">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                            <Sparkles size={20} className="text-white" />
+                        </div>
+                        <div>
+                            <p className="font-bold text-white font-poppins text-base">¿Necesitás niñera hoy?</p>
+                            <p className="text-white/80 text-sm font-nunito">Buscá disponibilidad ahora y confirmá en minutos</p>
+                        </div>
+                    </div>
+                    <Button
+                        onClick={() => navigate('/booking/search')}
+                        className="bg-white text-primary hover:bg-white/90 font-semibold flex-shrink-0 gap-2 self-start sm:self-auto"
+                    >
+                        <Search size={16} />
+                        Buscar Niñera
+                    </Button>
+                </div>
+
+                {/* Reserva activa */}
+                {activeBooking && (
+                    <section>
+                        <h2 className="text-xl font-bold text-gray-900 font-poppins mb-4">
+                            Reserva Activa
+                        </h2>
+                        <Card className="p-5 max-w-md border-2 border-primary/20 bg-primary/5">
+                            <div className="flex items-start justify-between gap-2 mb-3">
+                                <div className="flex items-center gap-2">
+                                    {activeBooking.status === 'confirmed' ? (
+                                        <CheckCircle2 size={18} className="text-success flex-shrink-0" />
+                                    ) : (
+                                        <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin flex-shrink-0" />
+                                    )}
+                                    <span className="font-bold text-gray-900 font-poppins text-sm">
+                                        {activeBooking.status === 'confirmed'
+                                            ? `Confirmada — ${activeBooking.nanny_name ?? 'Niñera asignada'}`
+                                            : 'Buscando niñera…'}
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="space-y-1 text-xs text-gray-500">
+                                {activeBooking.scheduled_date && (
+                                    <div className="flex items-center gap-1.5">
+                                        <Calendar size={12} className="text-primary" />
+                                        <span>
+                                            {new Date(activeBooking.scheduled_date + 'T12:00:00').toLocaleDateString('es-AR', {
+                                                weekday: 'long', day: 'numeric', month: 'long',
+                                            })}
+                                            {activeBooking.scheduled_time && ` · ${activeBooking.scheduled_time}`}
+                                        </span>
+                                    </div>
+                                )}
+                                <div className="flex items-center gap-1.5">
+                                    <Clock size={12} className="text-primary" />
+                                    <span>{activeBooking.duration_hours} hora{activeBooking.duration_hours !== 1 ? 's' : ''}</span>
+                                </div>
+                            </div>
+                            {activeBooking.status === 'confirmed' && (
+                                <div className="mt-3 flex items-start gap-2 bg-white border border-primary/20 rounded-xl p-3">
+                                    <Info size={13} className="text-primary flex-shrink-0 mt-0.5" />
+                                    <p className="text-xs text-gray-600 font-nunito">
+                                        Para seguir el servicio en tiempo real, abrí la app <strong>Nina</strong>.
+                                    </p>
+                                </div>
+                            )}
+                        </Card>
+                    </section>
+                )}
 
                 {/* Info: rankings desde nina-app */}
                 <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-start gap-3">
