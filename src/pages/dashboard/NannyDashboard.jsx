@@ -12,6 +12,7 @@ import { SubscriptionModal } from '../../components/dashboard/SubscriptionModal'
 import { SubscriptionBanner } from '../../components/dashboard/SubscriptionBanner';
 import { EditProfileModal } from '../../components/dashboard/EditProfileModal';
 import { NotificationArea } from '../../components/dashboard/NotificationArea';
+import { NotificationDrawer } from '../../components/dashboard/NotificationDrawer';
 
 /**
  * Dashboard para niñeras.
@@ -88,6 +89,7 @@ export const NannyDashboard = () => {
                         </p>
                     </div>
                     <div className="flex items-center gap-3 self-start sm:self-auto">
+                        <NotificationDrawer />
                         <button
                             onClick={() => setShowProfileModal(true)}
                             className="flex items-center gap-2 text-sm text-gray-600 hover:text-primary transition-colors font-nunito font-medium border border-gray-200 hover:border-primary/40 rounded-xl px-3 py-2 bg-white hover:bg-primary/5"
