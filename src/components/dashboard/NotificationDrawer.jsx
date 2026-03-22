@@ -27,6 +27,62 @@ const fmtRelative = (dateStr) => {
  * Combina notificaciones personales (booking events, mensajes admin)
  * y broadcasts del sistema (anuncios para todos o por rol).
  */
+const NotifDetailModal = ({ item, onClose, onDismiss }) => {
+    const cfg = TYPE_CONFIG[item.type] ?? TYPE_CONFIG.info;
+    const Icon = cfg.icon;
+    const isBroadcast = item._source === 'broadcast';
+
+    return (
+        <div
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] flex items-center justify-center p-4"
+            onClick={onClose}
+        >
+            <div
+                className="bg-white rounded-2xl shadow-2xl w-full max-w-sm flex flex-col"
+                onClick={e => e.stopPropagation()}
+            >
+                <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-100">
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${cfg.bg}`}>
+                        <Icon size={18} className={cfg.color} />
+                    </div>
+                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-100">
+                        <X size={16} />
+                    </button>
+                </div>
+
+                <div className="px-5 py-4 space-y-2 overflow-y-auto max-h-[60vh]">
+                    <p className="font-bold text-gray-900 font-poppins text-base leading-snug">
+                        {item.title}
+                    </p>
+                    {item.body && (
+                        <p className="text-sm text-gray-600 font-nunito leading-relaxed whitespace-pre-wrap">
+                            {item.body}
+                        </p>
+                    )}
+                    <p className="text-[11px] text-gray-400 pt-1">{fmtRelative(item.created_at)}</p>
+                </div>
+
+                <div className="px-5 pb-5 pt-3 border-t border-gray-100 flex gap-2">
+                    {isBroadcast && (
+                        <button
+                            onClick={onDismiss}
+                            className="flex-1 py-2 text-sm text-gray-500 hover:text-gray-700 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+                        >
+                            Descartar
+                        </button>
+                    )}
+                    <button
+                        onClick={onClose}
+                        className="flex-1 py-2 text-sm font-semibold bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors"
+                    >
+                        Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 export const NotificationDrawer = () => {
     const { items, unreadCount, loading, markAllRead, dismiss } = useNotifications();
     const [open, setOpen] = useState(false);
@@ -172,69 +228,14 @@ export const NotificationDrawer = () => {
                     </div>
                 </>
             )}
-        </div>
-
-            {/* Modal de detalle de notificación */}
-            {selected && (() => {
-                const cfg = TYPE_CONFIG[selected.type] ?? TYPE_CONFIG.info;
-                const Icon = cfg.icon;
-                const isBroadcast = selected._source === 'broadcast';
-                return (
-                    <div
-                        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] flex items-center justify-center p-4"
-                        onClick={() => setSelected(null)}
-                    >
-                        <div
-                            className="bg-white rounded-2xl shadow-2xl w-full max-w-sm flex flex-col"
-                            onClick={e => e.stopPropagation()}
-                        >
-                            {/* Header */}
-                            <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-100">
-                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${cfg.bg}`}>
-                                    <Icon size={18} className={cfg.color} />
-                                </div>
-                                <button
-                                    onClick={() => setSelected(null)}
-                                    className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-100"
-                                >
-                                    <X size={16} />
-                                </button>
-                            </div>
-
-                            {/* Cuerpo */}
-                            <div className="px-5 py-4 space-y-2 overflow-y-auto max-h-[60vh]">
-                                <p className="font-bold text-gray-900 font-poppins text-base leading-snug">
-                                    {selected.title}
-                                </p>
-                                {selected.body && (
-                                    <p className="text-sm text-gray-600 font-nunito leading-relaxed whitespace-pre-wrap">
-                                        {selected.body}
-                                    </p>
-                                )}
-                                <p className="text-[11px] text-gray-400 pt-1">{fmtRelative(selected.created_at)}</p>
-                            </div>
-
-                            {/* Footer */}
-                            <div className="px-5 pb-5 pt-3 border-t border-gray-100 flex gap-2">
-                                {isBroadcast && (
-                                    <button
-                                        onClick={() => { dismiss(selected.id); setSelected(null); }}
-                                        className="flex-1 py-2 text-sm text-gray-500 hover:text-gray-700 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
-                                    >
-                                        Descartar
-                                    </button>
-                                )}
-                                <button
-                                    onClick={() => setSelected(null)}
-                                    className="flex-1 py-2 text-sm font-semibold bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors"
-                                >
-                                    Cerrar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                );
-            })()}
+        {/* Modal de detalle de notificación */}
+        {selected && (
+            <NotifDetailModal
+                item={selected}
+                onClose={() => setSelected(null)}
+                onDismiss={() => { dismiss(selected.id); setSelected(null); }}
+            />
+        )}
         </div>
     );
 };
