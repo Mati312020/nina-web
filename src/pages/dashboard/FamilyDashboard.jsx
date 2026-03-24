@@ -13,6 +13,7 @@ import { SubscriptionModal } from '../../components/dashboard/SubscriptionModal'
 import { SubscriptionBanner } from '../../components/dashboard/SubscriptionBanner';
 import { EditProfileModal } from '../../components/dashboard/EditProfileModal';
 import { NotificationDrawer } from '../../components/dashboard/NotificationDrawer';
+import { ActiveBookingCard } from '../../components/dashboard/ActiveBookingCard';
 
 /**
  * Dashboard para familias.
@@ -71,16 +72,6 @@ export const FamilyDashboard = () => {
 
     const navigate = useNavigate();
 
-    // Reserva activa de la familia
-    const [activeBooking, setActiveBooking] = useState(null);
-
-    useEffect(() => {
-        if (!profile?.id) return;
-        api.get(`/bookings/focus/family/${profile.id}`)
-            .then((data) => setActiveBooking(data?.id ? data : null))
-            .catch(() => {});
-    }, [profile?.id]);
-
     const firstName = profile?.full_name?.split(' ')[0] ?? 'Familia';
 
     return (
@@ -126,6 +117,9 @@ export const FamilyDashboard = () => {
                     expiresAt={expiresAt}
                     onRenew={subscribe}
                 />
+
+                {/* Reserva activa confirmada */}
+                <ActiveBookingCard role="family" />
 
                 {/* CTA: Buscar niñera urgente */}
                 <div className="bg-gradient-to-r from-primary to-primary/80 rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-sm">

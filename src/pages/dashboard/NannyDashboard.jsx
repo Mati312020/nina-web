@@ -13,6 +13,7 @@ import { SubscriptionBanner } from '../../components/dashboard/SubscriptionBanne
 import { EditProfileModal } from '../../components/dashboard/EditProfileModal';
 import { NotificationArea } from '../../components/dashboard/NotificationArea';
 import { NotificationDrawer } from '../../components/dashboard/NotificationDrawer';
+import { ActiveBookingCard } from '../../components/dashboard/ActiveBookingCard';
 
 /**
  * Dashboard para niñeras.
@@ -111,6 +112,9 @@ export const NannyDashboard = () => {
 
             {/* Contenido */}
             <div className="max-w-6xl mx-auto px-6 py-8 space-y-12">
+
+                {/* Reserva activa confirmada */}
+                <ActiveBookingCard role="nanny" />
 
                 {/* Solicitudes last-minute pendientes */}
                 <NotificationArea />
