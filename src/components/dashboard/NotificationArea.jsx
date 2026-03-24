@@ -167,7 +167,20 @@ export const NotificationArea = () => {
                                 </div>
 
                                 {/* Acciones */}
-                                <div className="flex gap-2 mt-1">
+                                <div className="flex flex-col gap-2 mt-1">
+
+                                    {/* Ver reseñas — fila propia, llamativa */}
+                                    {req.family_id && (
+                                        <button
+                                            onClick={() => setReviewTarget({ userId: req.family_id, userName: req.family_name || 'Familia' })}
+                                            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-primary text-primary text-sm font-semibold hover:bg-primary/10 transition-colors"
+                                        >
+                                            <MessageSquare size={15} />
+                                            Ver valoración y reseñas de la familia
+                                        </button>
+                                    )}
+
+                                    <div className="flex gap-2">
                                     <button
                                         onClick={() => handleAccept(req.id)}
                                         disabled={!!acting[req.id]}
@@ -176,17 +189,6 @@ export const NotificationArea = () => {
                                         <CheckCircle2 size={14} />
                                         {acting[req.id] === 'accepting' ? 'Aceptando…' : 'Aceptar'}
                                     </button>
-
-                                    {/* Valoración de la familia */}
-                                    {req.family_id && (
-                                        <button
-                                            onClick={() => setReviewTarget({ userId: req.family_id, userName: req.family_name || 'Familia' })}
-                                            className="flex items-center justify-center gap-1 py-2 px-3 rounded-xl border border-primary/30 text-primary text-xs font-medium hover:bg-primary/5 transition-colors"
-                                            title="Ver valoraciones de la familia"
-                                        >
-                                            <MessageSquare size={13} />
-                                        </button>
-                                    )}
 
                                     <div className="relative flex-1">
                                         <button
@@ -212,7 +214,8 @@ export const NotificationArea = () => {
                                             </div>
                                         )}
                                     </div>
-                                </div>
+                                    </div>{/* fin flex Aceptar/Rechazar */}
+                                </div>{/* fin flex-col acciones */}
                             </Card>
                         );
                     })}
