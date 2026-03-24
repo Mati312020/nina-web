@@ -131,7 +131,7 @@ export const NannyCard = ({ nanny, isSubscribed, onContactClick }) => {
 
             {showReviews && (
                 <ReviewsModal
-                    userId={nanny.id}
+                    userId={nanny.nanny_id ?? nanny.id}
                     userName={nanny.nanny_name || 'Niñera'}
                     viewerRole="family"
                     onClose={() => setShowReviews(false)}
