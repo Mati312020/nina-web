@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../ui/Button';
-import { LogOut } from 'lucide-react';
+import { LogOut, LayoutDashboard } from 'lucide-react';
 import logo from '../../assets/logo.png';
 
 export const Navbar = () => {
@@ -50,6 +50,15 @@ export const Navbar = () => {
                                     {profile?.full_name || user.email}
                                 </span>
                             </div>
+                            {profile?.role && (
+                                <Button
+                                    onClick={() => navigate(`/dashboard/${profile.role}`)}
+                                    className="gap-2 text-sm"
+                                >
+                                    <LayoutDashboard size={16} />
+                                    <span className="hidden sm:inline">Mi Dashboard</span>
+                                </Button>
+                            )}
                             <Button
                                 variant="ghost"
                                 onClick={handleLogout}
