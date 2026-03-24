@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Users, Clock, Calendar, Mail, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Users, Clock, Calendar, Mail, AlertCircle, Search, CreditCard } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { CostBreakdown } from '../../components/booking/CostBreakdown';
@@ -10,12 +10,12 @@ const fmt = (val) =>
     new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(val);
 
 /**
- * Paso 3 (final) del wizard — confirmar reserva y pagar.
+ * Paso 3 (final) del wizard — confirmar y lanzar búsqueda.
  *
- * Flujo:
- *   1. POST /bookings/  → crea el booking con estado pending_payment
- *   2. POST /payments/create-link/{id}?is_web=true → obtiene checkout_url de MP
- *   3. window.location.href = checkout_url  (MP redirige a /booking/payment/*)
+ * Flujo web (sin pago por ahora):
+ *   1. POST /bookings/ con source="web" → crea booking en estado "searching"
+ *      y el backend dispara el waterfall directamente.
+ *   2. Redirige a /booking/searching para mostrar el estado de búsqueda.
  */
 export const ConfirmationPage = () => {
     const navigate = useNavigate();
@@ -43,20 +43,18 @@ export const ConfirmationPage = () => {
     const [loading, setLoading] = useState(false);
     const [error,   setError]   = useState(null);
 
-    // Evitar crear el booking dos veces si el usuario hace doble click
     const bookingCreatedRef = useRef(null);
 
-    const handlePay = async () => {
+    const handleConfirm = async () => {
         if (loading) return;
         setLoading(true);
         setError(null);
 
         try {
-            // Paso 1: crear booking (idempotente: si ya lo creamos, reusar el id)
             let bookingId = bookingCreatedRef.current;
             if (!bookingId) {
                 const bookingData = await api.post('/bookings/', {
-                    family_id:           profile.id,   // int DB, NO el UUID de Supabase
+                    family_id:           profile.id,
                     selected_candidates: selectedNannies.map(n => n.id),
                     scheduled_date:      scheduledDate  ?? null,
                     scheduled_time:      scheduledTime  ?? null,
@@ -66,19 +64,14 @@ export const ConfirmationPage = () => {
                     app_fee:             appFee,
                     total_amount:        totalAmount,
                     pricing_mode:        pricingMode,
+                    source:              'web',
                 });
-                bookingId = bookingData.booking_id ?? bookingData.id;
+                bookingId = bookingData.id ?? bookingData.booking_id;
                 bookingCreatedRef.current = bookingId;
             }
 
-            // Paso 2: obtener checkout URL (back_urls apuntan a /booking/payment/*)
-            const paymentData = await api.post(`/payments/create-link/${bookingId}?is_web=true`);
-            const checkoutUrl = paymentData.checkout_url;
-
-            if (!checkoutUrl) throw new Error('No se recibió la URL de pago');
-
-            // Paso 3: redirigir a MercadoPago
-            window.location.href = checkoutUrl;
+            // Waterfall ya arrancó en el backend — llevar a pantalla de búsqueda activa
+            navigate('/booking/searching', { replace: true, state: { bookingId } });
 
         } catch (err) {
             console.error('[ConfirmationPage] Error:', err);
@@ -151,6 +144,19 @@ export const ConfirmationPage = () => {
                 {/* Desglose de costos */}
                 <CostBreakdown durationHours={durationHours} hourlyRate={hourlyRate} />
 
+                {/* Aviso pago futuro */}
+                <div className="flex items-start gap-3 bg-amber-50 border border-amber-100 rounded-2xl p-4">
+                    <CreditCard size={16} className="text-amber-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                        <p className="text-sm font-medium text-amber-800">
+                            El pago se habilitará con el lanzamiento de la app
+                        </p>
+                        <p className="text-xs text-amber-700 mt-0.5">
+                            Por ahora podés confirmar reservas sin costo. El sistema de pagos vía MercadoPago estará disponible próximamente.
+                        </p>
+                    </div>
+                </div>
+
                 {/* Aviso de notificación por email */}
                 <div className="flex items-start gap-3 bg-teal-50 border border-teal-100 rounded-2xl p-4">
                     <Mail size={16} className="text-primary flex-shrink-0 mt-0.5" />
@@ -180,14 +186,14 @@ export const ConfirmationPage = () => {
                     <Button
                         variant="primary"
                         className="w-full text-base font-semibold"
-                        onClick={handlePay}
+                        onClick={handleConfirm}
                         isLoading={loading}
                         disabled={loading}
                     >
-                        {loading ? 'Procesando...' : `Pagar ${fmt(totalAmount)} con MercadoPago`}
+                        {loading ? 'Buscando niñera...' : 'Confirmar y buscar niñera'}
                     </Button>
                     <p className="text-xs text-center text-gray-400 mt-2">
-                        Serás redirigido/a a MercadoPago de forma segura
+                        Se notificará a las candidatas seleccionadas
                     </p>
                 </div>
             </div>

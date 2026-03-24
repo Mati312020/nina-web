@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Bell, Clock, Users, DollarSign, Smartphone } from 'lucide-react';
+import { Bell, Clock, Users, DollarSign, CheckCircle2, XCircle, ChevronDown } from 'lucide-react';
 import { api } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
 import { Card } from '../ui/Card';
@@ -25,9 +25,17 @@ const formatDateTime = (date, time) => {
  */
 export const NotificationArea = () => {
     const { profile } = useAuth();
-    const [requests, setRequests] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [hasNew, setHasNew] = useState(false);
+    const [requests, setRequests]   = useState([]);
+    const [loading, setLoading]     = useState(true);
+    const [hasNew, setHasNew]       = useState(false);
+    const [acting, setActing]       = useState({}); // { [bookingId]: 'accepting'|'rejecting' }
+    const [rejectOpen, setRejectOpen] = useState({}); // { [bookingId]: bool }
+
+    const REJECT_REASONS = [
+        { value: 'schedule',  label: 'Horario no me queda' },
+        { value: 'distance',  label: 'La distancia es mucha' },
+        { value: 'price',     label: 'El precio no me conviene' },
+    ];
 
     const fetchPending = useCallback(async () => {
         if (!profile?.id) return;
@@ -35,8 +43,7 @@ export const NotificationArea = () => {
             const data = await api.get(`/bookings/pending/${profile.id}`);
             const list = data?.requests ?? data ?? [];
             setRequests(prev => {
-                const prevCount = prev.length;
-                if (list.length > prevCount) setHasNew(true);
+                if (list.length > prev.length) setHasNew(true);
                 return list;
             });
         } catch (err) {
@@ -45,6 +52,31 @@ export const NotificationArea = () => {
             setLoading(false);
         }
     }, [profile?.id]);
+
+    const handleAccept = async (bookingId) => {
+        setActing(p => ({ ...p, [bookingId]: 'accepting' }));
+        try {
+            await api.patch(`/bookings/${bookingId}/accept`, { nanny_id: profile.id });
+            setRequests(prev => prev.filter(r => r.id !== bookingId));
+        } catch (err) {
+            console.error('[NotificationArea] Accept error:', err);
+        } finally {
+            setActing(p => ({ ...p, [bookingId]: null }));
+        }
+    };
+
+    const handleReject = async (bookingId, reason) => {
+        setActing(p => ({ ...p, [bookingId]: 'rejecting' }));
+        setRejectOpen(p => ({ ...p, [bookingId]: false }));
+        try {
+            await api.patch(`/bookings/${bookingId}/reject`, { nanny_id: profile.id, reason });
+            setRequests(prev => prev.filter(r => r.id !== bookingId));
+        } catch (err) {
+            console.error('[NotificationArea] Reject error:', err);
+        } finally {
+            setActing(p => ({ ...p, [bookingId]: null }));
+        }
+    };
 
     useEffect(() => {
         fetchPending();
@@ -132,12 +164,41 @@ export const NotificationArea = () => {
                                     )}
                                 </div>
 
-                                {/* Aviso — solo por app */}
-                                <div className="flex items-center gap-2 bg-amber-50 rounded-xl px-3 py-2">
-                                    <Smartphone size={13} className="text-amber-600 flex-shrink-0" />
-                                    <p className="text-xs text-amber-700">
-                                        Para aceptar o rechazar, abrí la app Nina
-                                    </p>
+                                {/* Acciones */}
+                                <div className="flex gap-2 mt-1">
+                                    <button
+                                        onClick={() => handleAccept(req.id)}
+                                        disabled={!!acting[req.id]}
+                                        className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50"
+                                    >
+                                        <CheckCircle2 size={14} />
+                                        {acting[req.id] === 'accepting' ? 'Aceptando…' : 'Aceptar'}
+                                    </button>
+
+                                    <div className="relative flex-1">
+                                        <button
+                                            onClick={() => setRejectOpen(p => ({ ...p, [req.id]: !p[req.id] }))}
+                                            disabled={!!acting[req.id]}
+                                            className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl border border-gray-200 text-gray-600 text-sm font-semibold hover:bg-gray-50 transition-colors disabled:opacity-50"
+                                        >
+                                            <XCircle size={14} />
+                                            {acting[req.id] === 'rejecting' ? 'Rechazando…' : 'Rechazar'}
+                                            <ChevronDown size={12} className={`transition-transform ${rejectOpen[req.id] ? 'rotate-180' : ''}`} />
+                                        </button>
+                                        {rejectOpen[req.id] && (
+                                            <div className="absolute bottom-full left-0 right-0 mb-1 bg-white rounded-xl border border-gray-200 shadow-lg z-10 overflow-hidden">
+                                                {REJECT_REASONS.map(r => (
+                                                    <button
+                                                        key={r.value}
+                                                        onClick={() => handleReject(req.id, r.value)}
+                                                        className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                                                    >
+                                                        {r.label}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </Card>
                         );
