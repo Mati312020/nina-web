@@ -3,6 +3,13 @@ import { Star, Clock, Lock, Phone, Mail, MapPin } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 
+// Solo muestra imagen si es una URL HTTP válida de Supabase Storage
+// (descarta nombres de archivo sueltos y links de Google Photos que no son embebibles)
+const isValidImageUrl = (url) =>
+    typeof url === 'string' &&
+    (url.startsWith('https://') || url.startsWith('http://')) &&
+    url.includes('supabase.co');
+
 /**
  * Card de niñera disponible para largo plazo.
  * - Si isSubscribed: muestra phone y email de la niñera
@@ -17,18 +24,20 @@ export const NannyCard = ({ nanny, isSubscribed, onContactClick }) => {
         <Card className="snap-start flex-shrink-0 w-72 p-5 flex flex-col gap-3 hover:shadow-lg transition-shadow">
             {/* Avatar + nombre */}
             <div className="flex items-center gap-3">
-                {nanny.profile_image_url ? (
+                {isValidImageUrl(nanny.profile_image_url) ? (
                     <img
                         src={nanny.profile_image_url}
                         alt={nanny.nanny_name}
                         className="w-14 h-14 rounded-full object-cover flex-shrink-0"
+                        onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
                     />
-                ) : (
-                    <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center
-                                    text-primary font-bold text-lg font-poppins flex-shrink-0">
-                        {initials}
-                    </div>
-                )}
+                ) : null}
+                <div
+                    className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg font-poppins flex-shrink-0"
+                    style={{ display: isValidImageUrl(nanny.profile_image_url) ? 'none' : 'flex' }}
+                >
+                    {initials}
+                </div>
                 <div className="min-w-0">
                     <p className="font-bold text-gray-900 font-poppins truncate">
                         {nanny.nanny_name || 'Niñera'}
