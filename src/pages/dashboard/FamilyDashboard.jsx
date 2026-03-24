@@ -141,55 +141,6 @@ export const FamilyDashboard = () => {
                     </Button>
                 </div>
 
-                {/* Reserva activa */}
-                {activeBooking && (
-                    <section>
-                        <h2 className="text-xl font-bold text-gray-900 font-poppins mb-4">
-                            Reserva Activa
-                        </h2>
-                        <Card className="p-5 max-w-md border-2 border-primary/20 bg-primary/5">
-                            <div className="flex items-start justify-between gap-2 mb-3">
-                                <div className="flex items-center gap-2">
-                                    {activeBooking.status === 'confirmed' ? (
-                                        <CheckCircle2 size={18} className="text-success flex-shrink-0" />
-                                    ) : (
-                                        <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin flex-shrink-0" />
-                                    )}
-                                    <span className="font-bold text-gray-900 font-poppins text-sm">
-                                        {activeBooking.status === 'confirmed'
-                                            ? `Confirmada — ${activeBooking.nanny_name ?? 'Niñera asignada'}`
-                                            : 'Buscando niñera…'}
-                                    </span>
-                                </div>
-                            </div>
-                            <div className="space-y-1 text-xs text-gray-500">
-                                {activeBooking.scheduled_date && (
-                                    <div className="flex items-center gap-1.5">
-                                        <Calendar size={12} className="text-primary" />
-                                        <span>
-                                            {new Date(activeBooking.scheduled_date + 'T12:00:00').toLocaleDateString('es-AR', {
-                                                weekday: 'long', day: 'numeric', month: 'long',
-                                            })}
-                                            {activeBooking.scheduled_time && ` · ${activeBooking.scheduled_time}`}
-                                        </span>
-                                    </div>
-                                )}
-                                <div className="flex items-center gap-1.5">
-                                    <Clock size={12} className="text-primary" />
-                                    <span>{activeBooking.duration_hours} hora{activeBooking.duration_hours !== 1 ? 's' : ''}</span>
-                                </div>
-                            </div>
-                            {activeBooking.status === 'confirmed' && (
-                                <div className="mt-3 flex items-start gap-2 bg-white border border-primary/20 rounded-xl p-3">
-                                    <Info size={13} className="text-primary flex-shrink-0 mt-0.5" />
-                                    <p className="text-xs text-gray-600 font-nunito">
-                                        Para seguir el servicio en tiempo real, abrí la app <strong>Nina</strong>.
-                                    </p>
-                                </div>
-                            )}
-                        </Card>
-                    </section>
-                )}
 
                 {/* Info: rankings desde nina-app */}
                 <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-start gap-3">
