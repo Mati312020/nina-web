@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Bell, Clock, Users, DollarSign, CheckCircle2, XCircle, ChevronDown } from 'lucide-react';
+import { Bell, Clock, Users, DollarSign, CheckCircle2, XCircle, ChevronDown, MessageSquare } from 'lucide-react';
 import { api } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
 import { Card } from '../ui/Card';
+import { ReviewsModal } from './ReviewsModal';
 
 const POLL_INTERVAL = 5000; // 5 segundos
 
@@ -30,6 +31,7 @@ export const NotificationArea = () => {
     const [hasNew, setHasNew]       = useState(false);
     const [acting, setActing]       = useState({}); // { [bookingId]: 'accepting'|'rejecting' }
     const [rejectOpen, setRejectOpen] = useState({}); // { [bookingId]: bool }
+    const [reviewTarget, setReviewTarget] = useState(null); // { userId, userName }
 
     const REJECT_REASONS = [
         { value: 'schedule',  label: 'Horario no me queda' },
@@ -175,6 +177,17 @@ export const NotificationArea = () => {
                                         {acting[req.id] === 'accepting' ? 'Aceptando…' : 'Aceptar'}
                                     </button>
 
+                                    {/* Valoración de la familia */}
+                                    {req.family_id && (
+                                        <button
+                                            onClick={() => setReviewTarget({ userId: req.family_id, userName: req.family_name || 'Familia' })}
+                                            className="flex items-center justify-center gap-1 py-2 px-3 rounded-xl border border-primary/30 text-primary text-xs font-medium hover:bg-primary/5 transition-colors"
+                                            title="Ver valoraciones de la familia"
+                                        >
+                                            <MessageSquare size={13} />
+                                        </button>
+                                    )}
+
                                     <div className="relative flex-1">
                                         <button
                                             onClick={() => setRejectOpen(p => ({ ...p, [req.id]: !p[req.id] }))}
@@ -205,6 +218,14 @@ export const NotificationArea = () => {
                     })}
                 </div>
             )}
+        {reviewTarget && (
+            <ReviewsModal
+                userId={reviewTarget.userId}
+                userName={reviewTarget.userName}
+                viewerRole="nanny"
+                onClose={() => setReviewTarget(null)}
+            />
+        )}
         </div>
     );
 };
