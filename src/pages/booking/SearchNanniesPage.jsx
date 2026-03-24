@@ -135,16 +135,37 @@ export const SearchNanniesPage = () => {
                                            bg-white text-gray-700"
                             />
                         </div>
-                        <div className="relative">
-                            <Clock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                            <input
-                                type="time"
-                                value={time}
-                                onChange={e => setTime(e.target.value)}
-                                className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 text-sm
-                                           focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary
-                                           bg-white text-gray-700"
-                            />
+                        <div className="relative flex items-center gap-1 border border-gray-200 rounded-xl px-3 py-2.5 bg-white focus-within:ring-2 focus-within:ring-primary/30 focus-within:border-primary">
+                            <Clock size={14} className="text-gray-400 flex-shrink-0" />
+                            <select
+                                value={time ? time.split(':')[0] : ''}
+                                onChange={e => {
+                                    const h = e.target.value;
+                                    const m = time ? time.split(':')[1] ?? '00' : '00';
+                                    setTime(h ? `${h}:${m}` : '');
+                                }}
+                                className="flex-1 text-sm bg-transparent focus:outline-none text-gray-700 cursor-pointer"
+                            >
+                                <option value="">HH</option>
+                                {Array.from({ length: 24 }, (_, i) => (
+                                    <option key={i} value={String(i).padStart(2, '0')}>
+                                        {String(i).padStart(2, '0')}
+                                    </option>
+                                ))}
+                            </select>
+                            <span className="text-gray-400 text-sm font-medium">:</span>
+                            <select
+                                value={time ? time.split(':')[1] ?? '00' : '00'}
+                                onChange={e => {
+                                    const h = time ? time.split(':')[0] : '00';
+                                    setTime(h ? `${h}:${e.target.value}` : '');
+                                }}
+                                className="flex-1 text-sm bg-transparent focus:outline-none text-gray-700 cursor-pointer"
+                            >
+                                {['00', '15', '30', '45'].map(m => (
+                                    <option key={m} value={m}>{m}</option>
+                                ))}
+                            </select>
                         </div>
                     </div>
 
