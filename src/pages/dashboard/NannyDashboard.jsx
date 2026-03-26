@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Clock, Calendar, CheckCircle, Info, Briefcase, UserCircle, Wallet } from 'lucide-react';
+import { Plus, Clock, Calendar, CheckCircle, Info, Briefcase, UserCircle, Wallet, Receipt } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
@@ -96,6 +96,11 @@ export const NannyDashboard = () => {
                             className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-primary transition-colors font-nunito font-medium border border-gray-200 hover:border-primary/40 rounded-xl px-3 py-2 bg-white hover:bg-primary/5">
                             <Wallet size={16} />
                             Billetera
+                        </button>
+                        <button onClick={() => navigate('/invoices')}
+                            className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-primary transition-colors font-nunito font-medium border border-gray-200 hover:border-primary/40 rounded-xl px-3 py-2 bg-white hover:bg-primary/5">
+                            <Receipt size={16} />
+                            Facturas
                         </button>
                         <NotificationDrawer />
                         <button

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Calendar, Clock, MapPin, Info, Search, UserCircle, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Plus, Calendar, Clock, MapPin, Info, Search, UserCircle, Sparkles, CheckCircle2, Receipt } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { useSubscription } from '../../hooks/useSubscription';
@@ -88,6 +88,11 @@ export const FamilyDashboard = () => {
                         </p>
                     </div>
                     <div className="flex items-center gap-3 self-start sm:self-auto">
+                        <button onClick={() => navigate('/invoices')}
+                            className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-primary transition-colors font-nunito font-medium border border-gray-200 hover:border-primary/40 rounded-xl px-3 py-2 bg-white hover:bg-primary/5">
+                            <Receipt size={16} />
+                            Facturas
+                        </button>
                         <NotificationDrawer />
                         <button
                             onClick={() => setShowProfileModal(true)}
