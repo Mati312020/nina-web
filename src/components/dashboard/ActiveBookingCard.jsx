@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, CheckCircle2, Star, Smartphone } from 'lucide-react';
+import { Calendar, Clock, CheckCircle2, Star, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
 import { useRealtimeBooking } from '../../hooks/useRealtimeBooking';
@@ -29,6 +30,7 @@ const isReviewTime = (b) => {
 /** Card de reserva activa para familia y niñera. Usa Realtime en lugar de polling. */
 export const ActiveBookingCard = ({ role }) => {
     const { profile } = useAuth();
+    const navigate = useNavigate();
     const { booking: liveBooking, loading } = useRealtimeBooking(role, profile?.id);
 
     // Solo mostrar cuando está confirmado (review state)
@@ -110,12 +112,13 @@ export const ActiveBookingCard = ({ role }) => {
                     )}
                 </div>
                 {!canReview && (
-                    <div className="flex items-start gap-2 bg-teal-50 border border-teal-100 rounded-xl px-3 py-2.5">
-                        <Smartphone size={13} className="text-primary flex-shrink-0 mt-0.5" />
-                        <p className="text-xs text-teal-700">
-                            Para seguir el servicio en tiempo real, abrí la app Nina.
-                        </p>
-                    </div>
+                    <button
+                        onClick={() => navigate(`/service/confirmed/${booking.id}`)}
+                        className="w-full flex items-center justify-between bg-teal-50 border border-teal-100 rounded-xl px-3 py-2.5 hover:bg-teal-100 transition-colors"
+                    >
+                        <span className="text-xs text-teal-700 font-medium">Ver detalles del servicio</span>
+                        <ChevronRight size={14} className="text-teal-500" />
+                    </button>
                 )}
                 {canReview && (
                     <div className="border-t border-gray-100 pt-3 space-y-3">
