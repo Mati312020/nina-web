@@ -17,6 +17,7 @@ import { SearchNanniesPage } from './pages/booking/SearchNanniesPage';
 import { ProposalPage } from './pages/booking/ProposalPage';
 import { ConfirmationPage } from './pages/booking/ConfirmationPage';
 import { SearchingPage } from './pages/booking/SearchingPage';
+import ConfirmedPage from './pages/service/ConfirmedPage';
 import { AuthCallback } from './pages/auth/AuthCallback';
 import { RecoveryPage } from './pages/auth/RecoveryPage';
 import { PrivacyPolicyPage } from './pages/legal/PrivacyPolicyPage';
@@ -126,6 +127,9 @@ function App() {
                         <Route path="/booking/searching" element={<ProtectedRoute><SearchingPage /></ProtectedRoute>} />
                         <Route path="/booking/searching/:bookingId" element={<ProtectedRoute><SearchingPage /></ProtectedRoute>} />
                         <Route path="/booking/payment/:outcome" element={<ProtectedRoute><PaymentBookingResult /></ProtectedRoute>} />
+
+                        {/* Flujo de servicio */}
+                        <Route path="/service/confirmed/:id" element={<ProtectedRoute><ConfirmedPage /></ProtectedRoute>} />
 
                         {/* Callback OAuth MercadoPago (público — MP redirige aquí tras autorizar) */}
                         <Route path="/mp-conectado" element={<MpCallbackPage />} />
