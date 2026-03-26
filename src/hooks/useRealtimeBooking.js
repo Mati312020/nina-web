@@ -3,7 +3,7 @@ import { api } from '../lib/api';
 import { subscribeToBooking } from '../services/realtimeService';
 
 const ACTIVE_STATUSES = [
-    'searching', 'confirmed', 'on_the_way', 'arrived', 'in_progress',
+    'searching', 'confirmed', 'on_the_way', 'arrived', 'in_progress', 'completed',
 ];
 
 /**
