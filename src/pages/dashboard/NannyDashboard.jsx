@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Clock, Calendar, CheckCircle, Info, Briefcase, UserCircle } from 'lucide-react';
+import { Plus, Clock, Calendar, CheckCircle, Info, Briefcase, UserCircle, Wallet } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { useSubscription } from '../../hooks/useSubscription';
@@ -23,6 +24,7 @@ import { ActiveBookingCard } from '../../components/dashboard/ActiveBookingCard'
  */
 export const NannyDashboard = () => {
     const { user, profile } = useAuth();
+    const navigate = useNavigate();
     const { isSubscribed, expiresAt, subscribe } = useSubscription();
 
     const [vacancies, setVacancies] = useState([]);
@@ -90,6 +92,11 @@ export const NannyDashboard = () => {
                         </p>
                     </div>
                     <div className="flex items-center gap-3 self-start sm:self-auto">
+                        <button onClick={() => navigate('/wallet')}
+                            className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-primary transition-colors font-nunito font-medium border border-gray-200 hover:border-primary/40 rounded-xl px-3 py-2 bg-white hover:bg-primary/5">
+                            <Wallet size={16} />
+                            Billetera
+                        </button>
                         <NotificationDrawer />
                         <button
                             onClick={() => setShowProfileModal(true)}
