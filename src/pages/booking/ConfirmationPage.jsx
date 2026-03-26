@@ -71,7 +71,7 @@ export const ConfirmationPage = () => {
             }
 
             // Waterfall ya arrancó en el backend — llevar a pantalla de búsqueda activa
-            navigate('/booking/searching', { replace: true, state: { bookingId } });
+            navigate(`/booking/searching/${bookingId}`, { replace: true });
 
         } catch (err) {
             console.error('[ConfirmationPage] Error:', err);
