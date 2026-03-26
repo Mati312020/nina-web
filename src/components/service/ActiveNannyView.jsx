@@ -1,10 +1,10 @@
 import React from 'react';
 import { Card } from '../ui/Card';
-import { Button } from '../ui/Button';
 import { ServiceTimer } from './ServiceTimer';
 import { StatusUpdateButtons } from './StatusUpdateButtons';
 import { EmergencyButton } from './EmergencyButton';
 import { ExtensionModal } from './ExtensionModal';
+import { CompleteServiceButton } from './CompleteServiceButton';
 import { useServiceExtension } from '../../hooks/useServiceExtension';
 
 /**
@@ -35,9 +35,7 @@ export const ActiveNannyView = ({ booking, remaining, onComplete }) => {
 
             <EmergencyButton bookingId={booking.id} />
 
-            <Button variant="primary" className="w-full" onClick={onComplete}>
-                Finalizar servicio
-            </Button>
+            <CompleteServiceButton bookingId={booking.id} onComplete={onComplete} />
         </div>
     );
 };

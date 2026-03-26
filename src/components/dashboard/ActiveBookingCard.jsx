@@ -33,8 +33,9 @@ export const ActiveBookingCard = ({ role }) => {
     const navigate = useNavigate();
     const { booking: liveBooking, loading } = useRealtimeBooking(role, profile?.id);
 
-    // Solo mostrar cuando está confirmado (review state)
-    const booking = liveBooking?.status === 'confirmed' ? liveBooking : null;
+    // Mostrar cuando confirmado (link a detalle) o completado (review form)
+    const booking = (liveBooking?.status === 'confirmed' || liveBooking?.status === 'completed')
+        ? liveBooking : null;
 
     const [stars, setStars]       = useState(0);
     const [hover, setHover]       = useState(0);
@@ -45,6 +46,11 @@ export const ActiveBookingCard = ({ role }) => {
 
     useEffect(() => {
         if (!booking) return;
+        // completed → siempre puede reseñar; confirmed → espera fin del horario
+        if (booking.status === 'completed') {
+            setCanReview(true);
+            return;
+        }
         setCanReview(isReviewTime(booking));
         const id = setInterval(() => setCanReview(isReviewTime(booking)), 60000);
         return () => clearInterval(id);
@@ -111,7 +117,7 @@ export const ActiveBookingCard = ({ role }) => {
                         </span>
                     )}
                 </div>
-                {!canReview && (
+                {!canReview && booking.status === 'confirmed' && (
                     <button
                         onClick={() => navigate(`/service/confirmed/${booking.id}`)}
                         className="w-full flex items-center justify-between bg-teal-50 border border-teal-100 rounded-xl px-3 py-2.5 hover:bg-teal-100 transition-colors"
