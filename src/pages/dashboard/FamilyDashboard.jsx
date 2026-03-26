@@ -14,6 +14,7 @@ import { SubscriptionBanner } from '../../components/dashboard/SubscriptionBanne
 import { EditProfileModal } from '../../components/dashboard/EditProfileModal';
 import { NotificationDrawer } from '../../components/dashboard/NotificationDrawer';
 import { PushPermissionBanner } from '../../components/notifications/PushPermissionBanner';
+import { InstallBanner } from '../../components/pwa/InstallBanner';
 import { ActiveBookingCard } from '../../components/dashboard/ActiveBookingCard';
 
 /**
@@ -124,7 +125,8 @@ export const FamilyDashboard = () => {
                     onRenew={subscribe}
                 />
 
-                {/* Banner de notificaciones push */}
+                {/* Banners de PWA y push */}
+                <InstallBanner />
                 <PushPermissionBanner />
 
                 {/* Reserva activa confirmada */}
