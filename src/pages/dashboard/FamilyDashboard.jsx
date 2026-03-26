@@ -13,6 +13,7 @@ import { SubscriptionModal } from '../../components/dashboard/SubscriptionModal'
 import { SubscriptionBanner } from '../../components/dashboard/SubscriptionBanner';
 import { EditProfileModal } from '../../components/dashboard/EditProfileModal';
 import { NotificationDrawer } from '../../components/dashboard/NotificationDrawer';
+import { PushPermissionBanner } from '../../components/notifications/PushPermissionBanner';
 import { ActiveBookingCard } from '../../components/dashboard/ActiveBookingCard';
 
 /**
@@ -122,6 +123,9 @@ export const FamilyDashboard = () => {
                     expiresAt={expiresAt}
                     onRenew={subscribe}
                 />
+
+                {/* Banner de notificaciones push */}
+                <PushPermissionBanner />
 
                 {/* Reserva activa confirmada */}
                 <ActiveBookingCard role="family" />
