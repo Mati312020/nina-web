@@ -2,10 +2,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Bell, Clock, Users, DollarSign, CheckCircle2, XCircle, ChevronDown, MessageSquare } from 'lucide-react';
 import { api } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
+import { subscribeToBooking } from '../../services/realtimeService';
 import { Card } from '../ui/Card';
 import { ReviewsModal } from './ReviewsModal';
 
-const POLL_INTERVAL = 5000; // 5 segundos
+// Realtime no puede filtrar por JSONB array (selected_candidates).
+// Usamos poll reducido (15s) + canal Realtime para limpiar items aceptados/rechazados al instante.
+const POLL_INTERVAL = 15000;
 
 const fmt = (val) =>
     new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(val);
@@ -85,6 +88,14 @@ export const NotificationArea = () => {
         const id = setInterval(fetchPending, POLL_INTERVAL);
         return () => clearInterval(id);
     }, [fetchPending]);
+
+    // Realtime: cuando un booking con nanny_id = esta niñera cambia de estado,
+    // refetcheamos para reflejar el cambio al instante (ej: otra candidata aceptó antes).
+    useEffect(() => {
+        if (!profile?.id) return;
+        const unsub = subscribeToBooking('nanny_id', profile.id, () => fetchPending());
+        return unsub;
+    }, [profile?.id, fetchPending]);
 
     // Limpiar indicador de nuevo cuando el usuario lo ve
     const handleMouseEnter = () => setHasNew(false);
