@@ -51,6 +51,7 @@ export const ConfirmationPage = () => {
         setError(null);
 
         try {
+            // 1. Crear booking en pending_payment (el waterfall arranca tras el pago)
             let bookingId = bookingCreatedRef.current;
             if (!bookingId) {
                 const bookingData = await api.post('/bookings/', {
@@ -64,14 +65,22 @@ export const ConfirmationPage = () => {
                     app_fee:             appFee,
                     total_amount:        totalAmount,
                     pricing_mode:        pricingMode,
-                    source:              'web',
+                    source:              'app',
                 });
                 bookingId = bookingData.id ?? bookingData.booking_id;
                 bookingCreatedRef.current = bookingId;
             }
 
-            // Waterfall ya arrancó en el backend — llevar a pantalla de búsqueda activa
-            navigate(`/booking/searching/${bookingId}`, { replace: true });
+            // 2. Generar link de pago MP
+            const paymentData = await api.post(`/payments/create-link/${bookingId}?is_web=true`);
+            const checkoutUrl = paymentData.checkout_url;
+            if (!checkoutUrl) throw new Error('No se recibió el link de pago');
+
+            // 3. Guardar bookingId para recuperarlo al volver de MP
+            sessionStorage.setItem('pending_booking_id', String(bookingId));
+
+            // 4. Redirigir a MP Checkout Pro
+            window.location.href = checkoutUrl;
 
         } catch (err) {
             console.error('[ConfirmationPage] Error:', err);
@@ -144,15 +153,15 @@ export const ConfirmationPage = () => {
                 {/* Desglose de costos */}
                 <CostBreakdown durationHours={durationHours} hourlyRate={hourlyRate} />
 
-                {/* Aviso pago futuro */}
-                <div className="flex items-start gap-3 bg-amber-50 border border-amber-100 rounded-2xl p-4">
-                    <CreditCard size={16} className="text-amber-600 flex-shrink-0 mt-0.5" />
+                {/* Info pago MP */}
+                <div className="flex items-start gap-3 bg-blue-50 border border-blue-100 rounded-2xl p-4">
+                    <CreditCard size={16} className="text-blue-600 flex-shrink-0 mt-0.5" />
                     <div>
-                        <p className="text-sm font-medium text-amber-800">
-                            El pago se habilitará con el lanzamiento de la app
+                        <p className="text-sm font-medium text-blue-800">
+                            Pago seguro con MercadoPago
                         </p>
-                        <p className="text-xs text-amber-700 mt-0.5">
-                            Por ahora podés confirmar reservas sin costo. El sistema de pagos vía MercadoPago estará disponible próximamente.
+                        <p className="text-xs text-blue-700 mt-0.5">
+                            Al confirmar serás redirigido a MercadoPago. El cargo se realiza solo si una niñera acepta.
                         </p>
                     </div>
                 </div>
@@ -190,7 +199,7 @@ export const ConfirmationPage = () => {
                         isLoading={loading}
                         disabled={loading}
                     >
-                        {loading ? 'Buscando niñera...' : 'Confirmar y buscar niñera'}
+                        {loading ? 'Generando link de pago...' : 'Confirmar y pagar'}
                     </Button>
                     <p className="text-xs text-center text-gray-400 mt-2">
                         Se notificará a las candidatas seleccionadas

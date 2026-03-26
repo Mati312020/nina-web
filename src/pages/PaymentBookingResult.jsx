@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CheckCircle, XCircle, Clock, Mail } from 'lucide-react';
 import { Button } from '../components/ui/Button';
@@ -41,9 +41,18 @@ export const PaymentBookingResult = () => {
     const navigate = useNavigate();
     const { outcome: outcomeParam } = useParams();
 
-    // Determinar outcome desde la URL: /booking/payment/success | failure | pending
     const outcome = OUTCOMES[outcomeParam] ? outcomeParam : 'pending';
     const config  = OUTCOMES[outcome];
+
+    // En éxito: redirigir a la searching page si tenemos el bookingId guardado
+    useEffect(() => {
+        if (outcome !== 'success') return;
+        const bookingId = sessionStorage.getItem('pending_booking_id');
+        if (bookingId) {
+            sessionStorage.removeItem('pending_booking_id');
+            navigate(`/booking/searching/${bookingId}`, { replace: true });
+        }
+    }, [outcome, navigate]);
 
     return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
