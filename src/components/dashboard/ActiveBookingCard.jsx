@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, CheckCircle2, Star, Smartphone } from 'lucide-react';
 import { api } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
+import { useRealtimeBooking } from '../../hooks/useRealtimeBooking';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
-
-const POLL_INTERVAL = 15000;
 
 const fmt = (val) =>
     new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(val);
@@ -13,105 +12,65 @@ const fmt = (val) =>
 const fmtDate = (date, time) => {
     const parts = [];
     if (date) parts.push(new Date(date + 'T12:00:00').toLocaleDateString('es-AR', {
-        weekday: 'long', day: 'numeric', month: 'long'
+        weekday: 'long', day: 'numeric', month: 'long',
     }));
     if (time) parts.push(`a las ${time.slice(0, 5)}`);
     return parts.join(' ') || 'Fecha a confirmar';
 };
 
-/**
- * Calcula si ya pasó 1 hora desde el inicio pactado del servicio.
- * Si no hay hora pactada, habilita review apenas esté confirmado.
- */
-const isReviewTime = (booking) => {
-    if (!booking?.scheduled_date) return true;
-    const timeStr = booking.scheduled_time ?? '00:00';
-    const start = new Date(`${booking.scheduled_date}T${timeStr}:00`);
-    const reviewFrom = new Date(start.getTime() + (booking.duration_hours ?? 1) * 60 * 60 * 1000);
-    return new Date() >= reviewFrom;
+const isReviewTime = (b) => {
+    if (!b?.scheduled_date) return true;
+    const timeStr = b.scheduled_time ?? '00:00';
+    const start = new Date(`${b.scheduled_date}T${timeStr}:00`);
+    const end = new Date(start.getTime() + (b.duration_hours ?? 1) * 3600000);
+    return new Date() >= end;
 };
 
-/**
- * Card de reserva activa (confirmada) para familia y niñera.
- * - Muestra detalles del servicio mientras status = confirmed
- * - Pasada 1 hora del inicio: muestra formulario de rating
- * - Al enviar review: desaparece del dashboard
- *
- * Props:
- *   role: "family" | "nanny"
- */
+/** Card de reserva activa para familia y niñera. Usa Realtime en lugar de polling. */
 export const ActiveBookingCard = ({ role }) => {
     const { profile } = useAuth();
-    const [booking, setBooking] = useState(null);
-    const [loading, setLoading]  = useState(true);
+    const { booking: liveBooking, loading } = useRealtimeBooking(role, profile?.id);
+
+    // Solo mostrar cuando está confirmado (review state)
+    const booking = liveBooking?.status === 'confirmed' ? liveBooking : null;
+
+    const [stars, setStars]       = useState(0);
+    const [hover, setHover]       = useState(0);
+    const [comment, setComment]   = useState('');
+    const [submitting, setSubmit] = useState(false);
+    const [done, setDone]         = useState(false);
     const [canReview, setCanReview] = useState(false);
 
-    // Review form state
-    const [stars, setStars]     = useState(0);
-    const [hover, setHover]     = useState(0);
-    const [comment, setComment] = useState('');
-    const [submitting, setSubmitting] = useState(false);
-    const [done, setDone]       = useState(false);
-
-    const fetchBooking = useCallback(async () => {
-        if (!profile?.id) return;
-        try {
-            const endpoint = role === 'nanny'
-                ? `/bookings/focus/nanny/${profile.id}`
-                : `/bookings/focus/family/${profile.id}`;
-            const data = await api.get(endpoint);
-            // Solo mostrar si está confirmado (no in_progress, etc. — esos los maneja la app)
-            if (data?.status === 'confirmed') {
-                setBooking(data);
-                setCanReview(isReviewTime(data));
-            } else {
-                setBooking(null);
-            }
-        } catch {
-            // silenciar
-        } finally {
-            setLoading(false);
-        }
-    }, [profile?.id, role]);
-
     useEffect(() => {
-        fetchBooking();
-        const id = setInterval(() => {
-            fetchBooking();
-            // También re-evaluar si ya es hora de review
-            if (booking) setCanReview(isReviewTime(booking));
-        }, POLL_INTERVAL);
+        if (!booking) return;
+        setCanReview(isReviewTime(booking));
+        const id = setInterval(() => setCanReview(isReviewTime(booking)), 60000);
         return () => clearInterval(id);
-    }, [fetchBooking, booking]);
+    }, [booking]);
 
     const handleSubmitReview = async () => {
-        if (stars === 0 || submitting) return;
-        setSubmitting(true);
+        if (stars === 0 || submitting || !booking) return;
+        setSubmit(true);
         try {
-            // reviewer = quien escribe, reviewed = el otro
-            const reviewerId = profile.id;
             const reviewedId = role === 'family'
-                ? booking.nanny?.id
-                : booking.family?.id ?? booking.family_id;
-
+                ? (booking.nanny?.id)
+                : (booking.family?.id ?? booking.family_id);
             await api.post('/reviews/', {
-                booking_id:  booking.id,
-                reviewer_id: reviewerId,
+                booking_id: booking.id,
+                reviewer_id: profile.id,
                 reviewed_id: reviewedId,
                 stars,
                 comment: comment.trim() || null,
             });
             setDone(true);
-            // Sacar el card después de un momento para dar feedback visual
-            setTimeout(() => setBooking(null), 2000);
         } catch (err) {
-            console.error('[ActiveBookingCard] Review error:', err);
+            console.error('[ActiveBookingCard] review error:', err);
         } finally {
-            setSubmitting(false);
+            setSubmit(false);
         }
     };
 
-    if (loading || !booking) return null;
+    if (loading || !booking || done) return null;
 
     const otherPerson = role === 'family' ? booking.nanny : booking.family;
     const otherName   = otherPerson?.name || (role === 'family' ? 'Niñera' : 'Familia');
@@ -123,9 +82,7 @@ export const ActiveBookingCard = ({ role }) => {
                 <CheckCircle2 size={15} className="text-green-600" />
                 Reserva Confirmada
             </h3>
-
             <Card className={`border-l-4 p-4 space-y-3 ${canReview ? 'border-l-amber-400' : 'border-l-green-500'}`}>
-                {/* Contraparte */}
                 <div className="flex items-center justify-between">
                     <div>
                         <p className="font-bold text-gray-900 font-poppins text-sm">{otherName}</p>
@@ -138,8 +95,6 @@ export const ActiveBookingCard = ({ role }) => {
                         </div>
                     )}
                 </div>
-
-                {/* Detalles */}
                 <div className="flex flex-wrap gap-3 text-xs text-gray-600">
                     {booking.duration_hours && (
                         <span className="flex items-center gap-1">
@@ -154,74 +109,34 @@ export const ActiveBookingCard = ({ role }) => {
                         </span>
                     )}
                 </div>
-
-                {/* ── Estado: esperando hora de review ── */}
-                {!canReview && !done && (
+                {!canReview && (
                     <div className="flex items-start gap-2 bg-teal-50 border border-teal-100 rounded-xl px-3 py-2.5">
                         <Smartphone size={13} className="text-primary flex-shrink-0 mt-0.5" />
                         <p className="text-xs text-teal-700">
-                            Para seguir el servicio en tiempo real, abrí la app Nina. Esta sección se actualizará al finalizar.
+                            Para seguir el servicio en tiempo real, abrí la app Nina.
                         </p>
                     </div>
                 )}
-
-                {/* ── Formulario de review ── */}
-                {canReview && !done && (
+                {canReview && (
                     <div className="border-t border-gray-100 pt-3 space-y-3">
-                        <p className="text-sm font-semibold text-gray-800">
-                            ¿Cómo fue el servicio? Dejá tu opinión
-                        </p>
-
-                        {/* Estrellas */}
+                        <p className="text-sm font-semibold text-gray-800">¿Cómo fue el servicio? Dejá tu opinión</p>
                         <div className="flex gap-1">
-                            {[1, 2, 3, 4, 5].map(n => (
-                                <button
-                                    key={n}
-                                    onClick={() => setStars(n)}
-                                    onMouseEnter={() => setHover(n)}
-                                    onMouseLeave={() => setHover(0)}
-                                    className="p-0.5 transition-transform hover:scale-110"
-                                >
-                                    <Star
-                                        size={28}
-                                        className={`transition-colors ${
-                                            n <= (hover || stars)
-                                                ? 'text-yellow-400 fill-yellow-400'
-                                                : 'text-gray-300'
-                                        }`}
-                                    />
+                            {[1,2,3,4,5].map(n => (
+                                <button key={n} onClick={() => setStars(n)}
+                                    onMouseEnter={() => setHover(n)} onMouseLeave={() => setHover(0)}
+                                    className="p-0.5 transition-transform hover:scale-110">
+                                    <Star size={28} className={`transition-colors ${n <= (hover||stars) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} />
                                 </button>
                             ))}
                         </div>
-
-                        {/* Comentario */}
-                        <textarea
-                            value={comment}
-                            onChange={e => setComment(e.target.value)}
-                            placeholder="Contanos tu experiencia (opcional)"
-                            rows={3}
-                            maxLength={500}
-                            className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                        />
+                        <textarea value={comment} onChange={e => setComment(e.target.value)}
+                            placeholder="Contanos tu experiencia (opcional)" rows={3} maxLength={500}
+                            className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
                         <p className="text-right text-xs text-gray-400">{comment.length}/500</p>
-
-                        <Button
-                            variant="primary"
-                            className="w-full"
-                            onClick={handleSubmitReview}
-                            disabled={stars === 0 || submitting}
-                            isLoading={submitting}
-                        >
+                        <Button variant="primary" className="w-full" onClick={handleSubmitReview}
+                            disabled={stars === 0 || submitting} isLoading={submitting}>
                             Enviar opinión
                         </Button>
-                    </div>
-                )}
-
-                {/* ── Enviado ── */}
-                {done && (
-                    <div className="flex items-center gap-2 bg-green-50 rounded-xl px-3 py-2.5">
-                        <CheckCircle2 size={14} className="text-green-600" />
-                        <p className="text-sm text-green-700 font-medium">¡Gracias por tu opinión!</p>
                     </div>
                 )}
             </Card>
