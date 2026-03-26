@@ -18,6 +18,8 @@ import { ProposalPage } from './pages/booking/ProposalPage';
 import { ConfirmationPage } from './pages/booking/ConfirmationPage';
 import { SearchingPage } from './pages/booking/SearchingPage';
 import ConfirmedPage from './pages/service/ConfirmedPage';
+import OnTheWayPage from './pages/service/OnTheWayPage';
+import ArrivedPage from './pages/service/ArrivedPage';
 import { AuthCallback } from './pages/auth/AuthCallback';
 import { RecoveryPage } from './pages/auth/RecoveryPage';
 import { PrivacyPolicyPage } from './pages/legal/PrivacyPolicyPage';
@@ -129,7 +131,9 @@ function App() {
                         <Route path="/booking/payment/:outcome" element={<ProtectedRoute><PaymentBookingResult /></ProtectedRoute>} />
 
                         {/* Flujo de servicio */}
-                        <Route path="/service/confirmed/:id" element={<ProtectedRoute><ConfirmedPage /></ProtectedRoute>} />
+                        <Route path="/service/confirmed/:id"  element={<ProtectedRoute><ConfirmedPage /></ProtectedRoute>} />
+                        <Route path="/service/on-the-way/:id" element={<ProtectedRoute><OnTheWayPage /></ProtectedRoute>} />
+                        <Route path="/service/arrived/:id"    element={<ProtectedRoute><ArrivedPage /></ProtectedRoute>} />
 
                         {/* Callback OAuth MercadoPago (público — MP redirige aquí tras autorizar) */}
                         <Route path="/mp-conectado" element={<MpCallbackPage />} />
