@@ -124,6 +124,7 @@ function App() {
                         <Route path="/booking/proposal" element={<ProtectedRoute><ProposalPage /></ProtectedRoute>} />
                         <Route path="/booking/confirmation" element={<ProtectedRoute><ConfirmationPage /></ProtectedRoute>} />
                         <Route path="/booking/searching" element={<ProtectedRoute><SearchingPage /></ProtectedRoute>} />
+                        <Route path="/booking/searching/:bookingId" element={<ProtectedRoute><SearchingPage /></ProtectedRoute>} />
                         <Route path="/booking/payment/:outcome" element={<ProtectedRoute><PaymentBookingResult /></ProtectedRoute>} />
 
                         {/* Callback OAuth MercadoPago (público — MP redirige aquí tras autorizar) */}
