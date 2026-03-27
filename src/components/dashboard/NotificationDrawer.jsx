@@ -132,10 +132,22 @@ export const NotificationDrawer = () => {
             {/* Drawer */}
             {open && (
                 <>
-                    {/* Overlay semi-transparente en mobile */}
-                    <div className="fixed inset-0 bg-black/10 z-40 sm:hidden" onClick={() => setOpen(false)} />
+                    {/* Overlay */}
+                    <div className="fixed inset-0 bg-black/20 z-40" onClick={() => setOpen(false)} />
 
-                    <div className="absolute right-0 top-11 z-50 w-80 sm:w-96 bg-white rounded-2xl border border-gray-200 shadow-xl flex flex-col max-h-[70vh]">
+                    {/* Mobile: bottom sheet — Desktop: dropdown alineado a la derecha */}
+                    <div className="
+                        fixed bottom-0 left-0 right-0 z-50
+                        rounded-t-2xl border-t border-gray-200
+                        sm:absolute sm:bottom-auto sm:left-auto sm:right-0 sm:top-11
+                        sm:rounded-2xl sm:border sm:w-96
+                        bg-white shadow-xl flex flex-col max-h-[75vh]
+                    ">
+                        {/* Drag handle visible solo en mobile */}
+                        <div className="flex justify-center pt-3 pb-1 sm:hidden">
+                            <div className="w-10 h-1 rounded-full bg-gray-200" />
+                        </div>
+
                         {/* Header del drawer */}
                         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
                             <div className="flex items-center gap-2">
