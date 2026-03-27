@@ -1,113 +1,61 @@
 import React, { useState } from 'react';
+import { CalendarDays, Briefcase } from 'lucide-react';
 import { Modal } from '../ui/Modal';
-import { Button } from '../ui/Button';
-import { Input } from '../ui/Input';
-import { api } from '../../lib/api';
-import { useAuth } from '../../context/AuthContext';
+import { DailyCalendarTab } from '../availability/DailyCalendarTab';
+import { LongTermTab } from '../availability/LongTermTab';
+
+const TABS = {
+    daily: {
+        icon:  <CalendarDays size={15} />,
+        label: 'Horarios semanales',
+    },
+    longterm: {
+        icon:  <Briefcase size={15} />,
+        label: 'Largo plazo',
+    },
+};
 
 /**
- * Modal para que una niñera se publique como disponible para trabajo de largo plazo.
- * Props: isOpen, onClose, onSuccess (callback post-creación)
+ * Modal de disponibilidad con dos pestañas:
+ *  - "Horarios semanales": grilla día × hora para servicios last-minute
+ *  - "Largo plazo": publicar perfil de disponibilidad para trabajos continuos
+ *
+ * Props: isOpen, onClose, onSuccess
  */
 export const AvailabilityModal = ({ isOpen, onClose, onSuccess }) => {
-    const { user } = useAuth();
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [form, setForm] = useState({
-        availability_description: '',
-        preferred_hours_per_week: 20,
-        schedule_description: '',
-        min_months: 1,
-    });
+    const [activeTab, setActiveTab] = useState('daily');
 
-    const handleChange = (e) => {
-        const { name, value, type } = e.target;
-        setForm((prev) => ({
-            ...prev,
-            [name]: type === 'number' ? Number(value) : value,
-        }));
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError('');
-        try {
-            await api.post('/long-term/nanny-availability', { ...form, auth_id: user.id });
-            setForm({
-                availability_description: '',
-                preferred_hours_per_week: 20,
-                schedule_description: '',
-                min_months: 1,
-            });
-            onSuccess?.();
-            onClose();
-        } catch (err) {
-            console.error('Error publicando disponibilidad:', err);
-            setError('Error al publicar disponibilidad. Intentá de nuevo.');
-        } finally {
-            setLoading(false);
-        }
+    const handleSuccess = () => {
+        onSuccess?.();
+        onClose();
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Publicarme como Disponible">
-            <form onSubmit={handleSubmit} className="space-y-5">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">
-                        Sobre tu disponibilidad
-                    </label>
-                    <textarea
-                        name="availability_description"
-                        rows={3}
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200
-                                   focus:border-primary focus:ring-2 focus:ring-primary/20
-                                   outline-none transition-all text-sm"
-                        placeholder="Ej: Disponible para trabajo largo plazo, experiencia con bebés y niños hasta 8 años..."
-                        value={form.availability_description}
-                        onChange={handleChange}
-                    />
-                </div>
+        <Modal isOpen={isOpen} onClose={onClose} title="Actualizar Disponibilidad">
+            {/* Tabs */}
+            <div className="flex gap-2 p-1 bg-gray-100 rounded-xl mb-5">
+                {Object.entries(TABS).map(([key, cfg]) => (
+                    <button
+                        key={key}
+                        type="button"
+                        onClick={() => setActiveTab(key)}
+                        className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3
+                                    rounded-lg text-sm font-semibold transition-all font-nunito ${
+                            activeTab === key
+                                ? 'bg-white shadow text-gray-900'
+                                : 'text-gray-500 hover:text-gray-700'
+                        }`}
+                    >
+                        {cfg.icon}
+                        {cfg.label}
+                    </button>
+                ))}
+            </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                    <Input
-                        label="Hs/semana preferidas"
-                        name="preferred_hours_per_week"
-                        type="number"
-                        min={1}
-                        max={60}
-                        value={form.preferred_hours_per_week}
-                        onChange={handleChange}
-                    />
-                    <Input
-                        label="Meses mínimos"
-                        name="min_months"
-                        type="number"
-                        min={1}
-                        max={24}
-                        value={form.min_months}
-                        onChange={handleChange}
-                    />
-                </div>
-
-                <Input
-                    label="Horarios / Días disponibles"
-                    name="schedule_description"
-                    placeholder="Ej: Lunes a viernes, jornada completa"
-                    value={form.schedule_description}
-                    onChange={handleChange}
-                />
-
-                {error && (
-                    <p className="text-sm text-danger text-center bg-red-50 p-3 rounded-lg border border-red-100">
-                        {error}
-                    </p>
-                )}
-
-                <Button type="submit" className="w-full" isLoading={loading}>
-                    Publicar Disponibilidad
-                </Button>
-            </form>
+            {activeTab === 'daily'
+                ? <DailyCalendarTab onSuccess={handleSuccess} />
+                : <LongTermTab      onSuccess={handleSuccess} />
+            }
         </Modal>
     );
 };
