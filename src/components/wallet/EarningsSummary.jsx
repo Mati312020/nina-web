@@ -7,7 +7,8 @@ import { formatARS } from '../../helpers/currencyHelpers';
  * Tarjeta de resumen: total de ganancias, rating promedio y servicios completados.
  */
 export const EarningsSummary = ({ data }) => {
-    const { total_earnings = 0, average_rating = 0, completed_services = 0 } = data ?? {};
+    const { total_earnings = 0, rating_avg = 0, completed_services = 0 } = data ?? {};
+    const average_rating = rating_avg;
 
     return (
         <Card className="p-5 space-y-4">

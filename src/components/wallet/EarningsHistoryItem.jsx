@@ -6,13 +6,8 @@ import { formatARS } from '../../helpers/currencyHelpers';
  * Fila de un servicio completado en el historial de ganancias.
  */
 export const EarningsHistoryItem = ({ item }) => {
-    const date = item.scheduled_date
-        ? new Date(item.scheduled_date + 'T12:00:00').toLocaleDateString('es-AR', {
-            day: 'numeric', month: 'short', year: 'numeric',
-          })
-        : '—';
-
-    const earned = item.offered_price ? Math.round(item.offered_price * 0.94) : 0;
+    const date = item.date ?? '—';
+    const earned = item.net_amount ?? 0;
 
     return (
         <div className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
@@ -22,10 +17,10 @@ export const EarningsHistoryItem = ({ item }) => {
                 </div>
                 <div>
                     <p className="text-sm font-medium text-gray-800">
-                        {item.family?.name || 'Familia'}
+                        {typeof item.family === 'string' ? item.family : (item.family?.name || 'Familia')}
                     </p>
                     <p className="text-xs text-gray-400">
-                        {date} · {item.duration_hours}h
+                        {date}{item.duration_hours ? ` · ${item.duration_hours}h` : ''}
                     </p>
                 </div>
             </div>
