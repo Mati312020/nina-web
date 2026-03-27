@@ -9,3 +9,17 @@
     @apply bg-background text-gray-800 font-sans;
   }
 }
+
+/* ─── Rich text body en notificaciones (NotifDetailModal) ───────────────────── */
+.notif-body-html p             { @apply mb-1.5; }
+.notif-body-html h2            { @apply text-base font-bold text-gray-800 mb-1 mt-2; }
+.notif-body-html h3            { @apply text-sm font-semibold text-gray-800 mb-0.5 mt-1.5; }
+.notif-body-html ul            { @apply list-disc list-inside mb-1.5 space-y-0.5; }
+.notif-body-html ol            { @apply list-decimal list-inside mb-1.5 space-y-0.5; }
+.notif-body-html blockquote    { @apply border-l-2 border-primary pl-3 italic text-gray-500 my-2; }
+.notif-body-html strong        { @apply font-semibold text-gray-800; }
+.notif-body-html em            { @apply italic; }
+.notif-body-html s             { @apply line-through text-gray-400; }
+.notif-body-html a             { @apply text-primary underline; }
+.notif-body-html img           { @apply max-w-full rounded-xl my-2 border border-gray-100; }
+.notif-body-html iframe        { @apply w-full rounded-xl my-2 border border-gray-100; min-height: 200px; }

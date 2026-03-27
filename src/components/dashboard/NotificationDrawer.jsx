@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Bell, X, CheckCheck, Info, CheckCircle, AlertTriangle, Calendar, Megaphone, ChevronRight } from 'lucide-react';
 import { useNotifications } from '../../hooks/useNotifications';
 
@@ -7,6 +7,21 @@ const TYPE_CONFIG = {
     success: { icon: CheckCircle,   color: 'text-green-500', bg: 'bg-green-50' },
     warning: { icon: AlertTriangle, color: 'text-amber-500', bg: 'bg-amber-50' },
     booking: { icon: Calendar,      color: 'text-primary',   bg: 'bg-primary/10' },
+};
+
+/** Extrae texto plano de HTML para usar como preview truncado */
+const stripHtml = (html) => {
+    if (!html) return '';
+    return html
+        .replace(/<br\s*\/?>/gi, ' ')
+        .replace(/<\/?(p|li|h[1-6]|div)[^>]*>/gi, ' ')
+        .replace(/<[^>]+>/g, '')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/\s+/g, ' ')
+        .trim();
 };
 
 const fmtRelative = (dateStr) => {
@@ -55,9 +70,10 @@ const NotifDetailModal = ({ item, onClose, onDismiss }) => {
                         {item.title}
                     </p>
                     {item.body && (
-                        <p className="text-sm text-gray-600 font-nunito leading-relaxed whitespace-pre-wrap">
-                            {item.body}
-                        </p>
+                        <div
+                            className="text-sm text-gray-600 font-nunito leading-relaxed notif-body-html"
+                            dangerouslySetInnerHTML={{ __html: item.body }}
+                        />
                     )}
                     <p className="text-[11px] text-gray-400 pt-1">{fmtRelative(item.created_at)}</p>
                 </div>
@@ -205,7 +221,7 @@ export const NotificationDrawer = () => {
                                                         </p>
                                                         {hasBody && (
                                                             <p className="text-xs text-gray-400 font-nunito mt-0.5 truncate">
-                                                                {item.body}
+                                                                {stripHtml(item.body)}
                                                             </p>
                                                         )}
                                                         <div className="flex items-center gap-2 mt-1">
