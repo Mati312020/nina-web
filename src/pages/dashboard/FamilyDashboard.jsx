@@ -80,38 +80,58 @@ export const FamilyDashboard = () => {
         <div className="min-h-screen bg-background">
             {/* Header */}
             <div className="bg-white border-b border-gray-100">
-                <div className="max-w-6xl mx-auto px-6 py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900 font-poppins">
-                            Hola, {firstName} 👋
-                        </h1>
-                        <p className="text-gray-500 font-nunito text-sm mt-0.5">
-                            Encontrá tu niñera ideal para largo plazo
-                        </p>
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+
+                    {/* Fila principal */}
+                    <div className="flex items-center justify-between gap-2">
+                        <div className="min-w-0">
+                            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 font-poppins truncate">
+                                Hola, {firstName} 👋
+                            </h1>
+                            <p className="text-gray-500 font-nunito text-sm mt-0.5 hidden sm:block">
+                                Encontrá tu niñera ideal para largo plazo
+                            </p>
+                        </div>
+
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                            {/* Facturas: solo desktop */}
+                            <button onClick={() => navigate('/invoices')}
+                                className="hidden sm:flex items-center gap-1.5 text-sm text-gray-600 hover:text-primary transition-colors font-nunito font-medium border border-gray-200 hover:border-primary/40 rounded-xl px-3 py-2 bg-white hover:bg-primary/5">
+                                <Receipt size={16} />
+                                Facturas
+                            </button>
+
+                            <NotificationDrawer />
+
+                            <button
+                                onClick={() => setShowProfileModal(true)}
+                                className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-primary transition-colors font-nunito font-medium border border-gray-200 hover:border-primary/40 rounded-xl px-2 sm:px-3 py-2 bg-white hover:bg-primary/5"
+                            >
+                                {profile?.profile_image_url ? (
+                                    <img src={profile.profile_image_url} alt="" className="w-6 h-6 rounded-full object-cover" />
+                                ) : (
+                                    <UserCircle size={18} className="text-gray-400" />
+                                )}
+                                <span className="hidden sm:inline">Mi perfil</span>
+                            </button>
+
+                            <Button onClick={() => setShowVacancyModal(true)} className="gap-1.5 text-sm whitespace-nowrap">
+                                <Plus size={16} />
+                                <span className="hidden sm:inline">Publicar Vacante</span>
+                                <span className="sm:hidden">Vacante</span>
+                            </Button>
+                        </div>
                     </div>
-                    <div className="flex items-center gap-3 self-start sm:self-auto">
+
+                    {/* Fila secundaria mobile: Facturas */}
+                    <div className="flex sm:hidden items-center gap-2 mt-3">
                         <button onClick={() => navigate('/invoices')}
-                            className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-primary transition-colors font-nunito font-medium border border-gray-200 hover:border-primary/40 rounded-xl px-3 py-2 bg-white hover:bg-primary/5">
-                            <Receipt size={16} />
+                            className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-primary transition-colors font-nunito font-medium border border-gray-200 rounded-xl px-3 py-1.5 bg-white">
+                            <Receipt size={15} />
                             Facturas
                         </button>
-                        <NotificationDrawer />
-                        <button
-                            onClick={() => setShowProfileModal(true)}
-                            className="flex items-center gap-2 text-sm text-gray-600 hover:text-primary transition-colors font-nunito font-medium border border-gray-200 hover:border-primary/40 rounded-xl px-3 py-2 bg-white hover:bg-primary/5"
-                        >
-                            {profile?.profile_image_url ? (
-                                <img src={profile.profile_image_url} alt="" className="w-6 h-6 rounded-full object-cover" />
-                            ) : (
-                                <UserCircle size={18} className="text-gray-400" />
-                            )}
-                            Mi perfil
-                        </button>
-                        <Button onClick={() => setShowVacancyModal(true)} className="gap-2">
-                            <Plus size={18} />
-                            Publicar Vacante
-                        </Button>
                     </div>
+
                 </div>
             </div>
 

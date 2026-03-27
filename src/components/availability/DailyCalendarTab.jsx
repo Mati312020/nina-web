@@ -15,7 +15,7 @@ const toSet = (slots) =>
  * PUT /users/me/availability.
  */
 export const DailyCalendarTab = ({ onSuccess }) => {
-    const { user, profile } = useAuth();
+    const { user, profile, refreshProfile } = useAuth();
     const [selected, setSelected] = useState(() => toSet(profile?.availability));
     const [loading, setLoading]   = useState(false);
     const [error, setError]       = useState('');
@@ -48,6 +48,7 @@ export const DailyCalendarTab = ({ onSuccess }) => {
                 return { day_name, hour };
             });
             await api.put(`/users/me/availability?auth_id=${user.id}`, slots);
+            await refreshProfile();
             onSuccess?.();
         } catch {
             setError('Error al guardar. Intentá de nuevo.');
