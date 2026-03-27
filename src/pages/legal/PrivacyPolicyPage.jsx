@@ -198,7 +198,7 @@ export const PrivacyPolicyPage = () => (
             {/* Footer de la página */}
             <div className="text-center space-y-3">
                 <p className="text-xs text-gray-400 font-nunito">
-                    © {new Date().getFullYear()} Nina App. Todos los derechos reservados.
+                    © 2026 Nina App y Nina Web desarrolladas por Byteraft. Todos los derechos reservados.
                 </p>
                 <Link to="/" className="text-sm text-primary hover:underline font-nunito">
                     ← Volver al inicio

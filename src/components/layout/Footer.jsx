@@ -41,7 +41,7 @@ export const Footer = () => {
                     Nina
                 </div>
                 <p className="text-gray-400 text-sm font-nunito">
-                    © {new Date().getFullYear()} Nina App. Todos los derechos reservados.
+                    © 2026 Nina App y Nina Web desarrolladas por Byteraft. Todos los derechos reservados.
                 </p>
                 <p className="mt-2">
                     <Link to="/legal/privacidad" className="text-xs text-gray-400 hover:text-primary transition-colors font-nunito underline underline-offset-2">
