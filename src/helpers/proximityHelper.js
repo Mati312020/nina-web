@@ -4,7 +4,14 @@
  * Prioridad: misma localidad (0) > misma provincia (1) > otra zona (2)
  */
 
-const normalize = (s) => (s || '').toLowerCase().trim();
+// Normaliza: minúsculas + sin tildes/diacríticos + sin espacios extremos
+// "Río Gallegos " === "rio gallegos" === "RIO GALLEGOS"
+const normalize = (s) =>
+    (s || '')
+        .toLowerCase()
+        .trim()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
 
 /**
  * Calcula la proximidad de un item respecto a la ubicación del usuario.
