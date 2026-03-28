@@ -9,9 +9,20 @@ import { Button } from '../ui/Button';
  * - Si isSubscribed: muestra nombre + phone + email de la familia
  * - Si no: botón "Ver Contacto"
  */
-export const FamilyVacancyCard = ({ vacancy, isSubscribed, onContactClick }) => {
+export const FamilyVacancyCard = ({ vacancy, isSubscribed, onContactClick, proximityLabel }) => {
     return (
         <Card className="snap-start flex-shrink-0 w-72 p-5 flex flex-col gap-3 hover:shadow-lg transition-shadow">
+            {/* Badge de proximidad */}
+            {proximityLabel === 'local' && (
+                <span className="self-start text-xs font-medium px-2 py-0.5 rounded-full bg-teal-50 text-teal-600">
+                    📍 Tu zona
+                </span>
+            )}
+            {proximityLabel === 'other' && (
+                <span className="self-start text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
+                    🗺️ Otra zona
+                </span>
+            )}
             {/* Título */}
             <h4 className="font-bold text-gray-900 font-poppins line-clamp-2 leading-snug">
                 {vacancy.title}

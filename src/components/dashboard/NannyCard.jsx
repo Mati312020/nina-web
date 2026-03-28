@@ -17,7 +17,7 @@ const isValidImageUrl = (url) =>
  * - Si no: botón "Ver Contacto" que dispara onContactClick para abrir SubscriptionModal
  * - Botón "Valoración y comentarios" abre modal con reseñas de familias sobre esta niñera
  */
-export const NannyCard = ({ nanny, isSubscribed, onContactClick }) => {
+export const NannyCard = ({ nanny, isSubscribed, onContactClick, proximityLabel }) => {
     const [showReviews, setShowReviews] = useState(false);
 
     const initials = nanny.nanny_name
@@ -27,6 +27,17 @@ export const NannyCard = ({ nanny, isSubscribed, onContactClick }) => {
     return (
         <>
             <Card className="snap-start flex-shrink-0 w-72 p-5 flex flex-col gap-3 hover:shadow-lg transition-shadow">
+                {/* Badge de proximidad */}
+                {proximityLabel === 'local' && (
+                    <span className="self-start text-xs font-medium px-2 py-0.5 rounded-full bg-teal-50 text-teal-600">
+                        📍 Tu zona
+                    </span>
+                )}
+                {proximityLabel === 'other' && (
+                    <span className="self-start text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
+                        🗺️ Otra zona
+                    </span>
+                )}
                 {/* Avatar + nombre */}
                 <div className="flex items-center gap-3">
                     {isValidImageUrl(nanny.profile_image_url) ? (

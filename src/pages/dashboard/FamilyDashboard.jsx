@@ -8,6 +8,7 @@ import { Carousel } from '../../components/ui/Carousel';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { NannyCard } from '../../components/dashboard/NannyCard';
+import { sortByProximity, getProximityLabel } from '../../helpers/proximityHelper';
 import { VacancyModal } from '../../components/dashboard/VacancyModal';
 import { SubscriptionModal } from '../../components/dashboard/SubscriptionModal';
 import { SubscriptionBanner } from '../../components/dashboard/SubscriptionBanner';
@@ -213,14 +214,16 @@ export const FamilyDashboard = () => {
                                 </Button>
                             </Card>
                         ) : (
-                            nannies.map((nanny) => (
-                                <NannyCard
-                                    key={nanny.id}
-                                    nanny={nanny}
-                                    isSubscribed={isSubscribed}
-                                    onContactClick={() => setShowSubModal(true)}
-                                />
-                            ))
+                            sortByProximity(nannies, profile?.locality, profile?.province, 'nanny_locality', 'nanny_province')
+                                .map((nanny) => (
+                                    <NannyCard
+                                        key={nanny.id}
+                                        nanny={nanny}
+                                        isSubscribed={isSubscribed}
+                                        onContactClick={() => setShowSubModal(true)}
+                                        proximityLabel={getProximityLabel(nanny, profile?.locality, profile?.province, 'nanny_locality', 'nanny_province')}
+                                    />
+                                ))
                         )}
                     </Carousel>
                 </section>
