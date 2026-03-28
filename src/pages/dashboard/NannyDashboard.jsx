@@ -159,6 +159,27 @@ export const NannyDashboard = () => {
                 <InstallBanner />
                 <PushPermissionBanner />
 
+                {/* Banner: barrio faltante — solo visible si el perfil no tiene neighborhood */}
+                {profile && !profile.neighborhood && (
+                    <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+                        <span className="text-amber-500 text-lg flex-shrink-0">📍</span>
+                        <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-amber-800 font-poppins">
+                                Completá tu barrio para aparecer más fácilmente
+                            </p>
+                            <p className="text-xs text-amber-700 font-nunito mt-0.5">
+                                Las familias buscan niñeras cerca de su zona. Agregá tu barrio en tu perfil y vas a tener más visibilidad.
+                            </p>
+                        </div>
+                        <button
+                            onClick={() => setShowProfileModal(true)}
+                            className="flex-shrink-0 text-xs font-semibold text-amber-700 bg-amber-100 hover:bg-amber-200 border border-amber-300 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
+                        >
+                            Completar ahora
+                        </button>
+                    </div>
+                )}
+
                 {/* Reserva activa confirmada */}
                 <ActiveBookingCard role="nanny" />
 
