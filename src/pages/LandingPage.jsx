@@ -115,7 +115,12 @@ const AppMovilSection = () => {
 
                     {/* — texto dinámico — */}
                     <div className="space-y-6">
-                        <h2 className="text-3xl font-bold text-gray-900 font-poppins">App Móvil</h2>
+                        <div>
+                            <h2 className="text-3xl font-bold text-gray-900 font-poppins">App Móvil</h2>
+                            <p className="text-sm text-primary font-semibold font-poppins mt-1">
+                                Sin descargas · Instalala directo desde el navegador
+                            </p>
+                        </div>
 
                         {/* bloque que cambia con key para disparar fade-in */}
                         <div key={current} className="animate-fadeIn space-y-3">
@@ -143,14 +148,39 @@ const AppMovilSection = () => {
                             ))}
                         </div>
 
-                        {/* badge Google Play */}
-                        <div className="pt-2">
-                            <div className="inline-flex items-center gap-3 bg-white border border-gray-200 px-5 py-3 rounded-xl shadow-sm cursor-default select-none opacity-80">
-                                <PlayStoreLogo />
-                                <div className="leading-none">
-                                    <div className="text-[10px] text-amber-500 font-semibold mb-0.5">Próximamente</div>
-                                    <div className="text-sm font-bold font-poppins text-gray-600">Google Play</div>
+                        {/* card de instalación PWA */}
+                        <div className="pt-2 space-y-3">
+                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                Cómo instalarla
+                            </p>
+
+                            <div className="flex flex-col sm:flex-row gap-3">
+                                {/* Android */}
+                                <div className="inline-flex items-center gap-3 bg-white border border-gray-200 px-4 py-3 rounded-xl shadow-sm">
+                                    <ChromeIcon />
+                                    <div className="leading-none">
+                                        <div className="text-[10px] text-gray-400 font-medium mb-1 uppercase tracking-wide">Android · Chrome</div>
+                                        <div className="text-xs font-semibold text-gray-700">Menú <span className="text-base leading-none">⋮</span> → Agregar a inicio</div>
+                                    </div>
                                 </div>
+
+                                {/* iPhone */}
+                                <div className="inline-flex items-center gap-3 bg-white border border-gray-200 px-4 py-3 rounded-xl shadow-sm">
+                                    <SafariIcon />
+                                    <div className="leading-none">
+                                        <div className="text-[10px] text-gray-400 font-medium mb-1 uppercase tracking-wide">iPhone · Safari</div>
+                                        <div className="text-xs font-semibold text-gray-700">Compartir <span className="text-base leading-none">⬆</span> → Agregar a inicio</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* pill de beneficios */}
+                            <div className="inline-flex items-center gap-1.5 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-xs font-semibold">
+                                <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 16 16">
+                                    <circle cx="8" cy="8" r="7.5" stroke="currentColor" strokeWidth="1.2"/>
+                                    <path d="M5 8.5l2 2 4-4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                                Sin Play Store · Sin App Store · Se actualiza sola
                             </div>
                         </div>
                     </div>
@@ -225,14 +255,30 @@ const WebFeature = ({ icon, text, color = 'primary' }) => (
 );
 
 /* ══════════════════════════════════════════════════════════
-   SVG logo Google Play
+   Íconos para la card de instalación PWA
    ══════════════════════════════════════════════════════════ */
-const PlayStoreLogo = () => (
-    <svg viewBox="0 0 24 24" className="w-7 h-7" xmlns="http://www.w3.org/2000/svg">
-        <path fill="#34A853" d="M1.22 0a1.4 1.4 0 0 0-.96 1.36v21.27a1.4 1.4 0 0 0 .96 1.36l.09.05L13.1 12.3v-.28L1.31-.05z"/>
-        <path fill="#4285F4" d="M17.05 16.17l-3.95-3.87v-.28l3.95-3.87.09.05 4.68 2.66c1.34.76 1.34 2 0 2.76l-4.68 2.66z"/>
-        <path fill="#FBBC05" d="M17.14 16.06L13.1 12 1.22 23.98c.44.47 1.17.53 1.98.06z"/>
-        <path fill="#EA4335" d="M17.14 7.94L3.2.02C2.39-.46 1.66-.39 1.22.08L13.1 12z"/>
+const ChromeIcon = () => (
+    <svg viewBox="0 0 24 24" className="w-7 h-7 shrink-0" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" fill="#fff"/>
+        <circle cx="12" cy="12" r="4.8" fill="#4285F4"/>
+        <path fill="#34A853" d="M12 7.2h8.6A10 10 0 0 1 12 22z"/>
+        <path fill="#FBBC05" d="M3.4 17.6A10 10 0 0 1 3.4 6.4L8.2 12z"/>
+        <path fill="#EA4335" d="M12 7.2H3.4A10 10 0 0 1 12 2z"/>
+    </svg>
+);
+
+const SafariIcon = () => (
+    <svg viewBox="0 0 24 24" className="w-7 h-7 shrink-0" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" fill="url(#sg)"/>
+        <defs>
+            <linearGradient id="sg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#1C86FA"/>
+                <stop offset="100%" stopColor="#47D7FF"/>
+            </linearGradient>
+        </defs>
+        <circle cx="12" cy="12" r="9" fill="none" stroke="white" strokeOpacity=".25" strokeWidth=".5"/>
+        <polygon points="12,4.5 14,11 19.5,12 14,13 12,19.5 10,13 4.5,12 10,11" fill="white"/>
+        <circle cx="12" cy="12" r="1.2" fill="#1C86FA"/>
     </svg>
 );
 
