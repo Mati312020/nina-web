@@ -259,14 +259,20 @@ const WebFeature = ({ icon, text, color = 'primary' }) => (
    ══════════════════════════════════════════════════════════ */
 const ChromeIcon = () => (
     <svg viewBox="0 0 24 24" className="w-7 h-7 shrink-0" xmlns="http://www.w3.org/2000/svg">
-        {/* 3 sectores de 120° exactos — puntos de unión: top-right(20.66,7), top-left(3.34,7), bottom(12,22) */}
-        <path fill="#EA4335" d="M12 12L20.66 7A10 10 0 0 0 3.34 7Z"/>
-        <path fill="#FBBC05" d="M12 12L3.34 7A10 10 0 0 1 12 22Z"/>
-        <path fill="#34A853" d="M12 12L12 22A10 10 0 0 1 20.66 7Z"/>
-        {/* Anillo blanco para efecto donut */}
-        <circle cx="12" cy="12" r="6.5" fill="white"/>
-        {/* Centro azul */}
-        <circle cx="12" cy="12" r="5" fill="#4285F4"/>
+        <defs>
+            <clipPath id="chrome-clip">
+                <circle cx="12" cy="12" r="10"/>
+            </clipPath>
+        </defs>
+        {/* 3 sectores de 120° — clip circular para bordes limpios */}
+        <g clipPath="url(#chrome-clip)">
+            <path fill="#EA4335" d="M12 12L20.66 7A10 10 0 0 0 3.34 7Z"/>
+            <path fill="#FBBC05" d="M12 12L3.34 7A10 10 0 0 1 12 22Z"/>
+            <path fill="#34A853" d="M12 12L12 22A10 10 0 0 1 20.66 7Z"/>
+        </g>
+        {/* Separador blanco fino + centro azul */}
+        <circle cx="12" cy="12" r="6" fill="white"/>
+        <circle cx="12" cy="12" r="5.5" fill="#4285F4"/>
     </svg>
 );
 
@@ -286,11 +292,42 @@ const SafariIcon = () => (
 );
 
 /* ══════════════════════════════════════════════════════════
+   SECCIÓN VIDEO DEMO
+   ══════════════════════════════════════════════════════════ */
+const VideoSection = () => (
+    <section className="py-16 bg-gray-900">
+        <div className="container mx-auto px-4 max-w-4xl">
+            <div className="text-center mb-10">
+                <span className="text-xs font-semibold tracking-widest text-primary uppercase">En acción</span>
+                <h2 className="text-3xl font-bold text-white mt-2 font-poppins">Mirá cómo funciona Nina</h2>
+                <p className="text-gray-400 mt-3 font-nunito">Desde buscar una niñera hasta confirmar el servicio — todo en minutos.</p>
+            </div>
+            <div className="rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10">
+                <video
+                    className="w-full block"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    controls
+                    preload="metadata"
+                >
+                    <source src="/videos/nina_demo.mp4" type="video/mp4"/>
+                </video>
+            </div>
+        </div>
+    </section>
+);
+
+/* ══════════════════════════════════════════════════════════
    PÁGINA PRINCIPAL
    ══════════════════════════════════════════════════════════ */
 export const LandingPage = () => (
     <div className="flex flex-col">
         <Hero />
+
+        {/* Video demo */}
+        <VideoSection />
 
         {/* ¿Por qué Nina? */}
         <section className="py-20 bg-white">
