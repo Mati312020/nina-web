@@ -90,8 +90,8 @@ export const EditProfileModal = ({ isOpen, onClose }) => {
 
     const handleSave = async (e) => {
         e.preventDefault();
-        if (!form.province || !form.locality) {
-            setError('La provincia y la localidad son obligatorias.');
+        if (!form.province || !form.locality || !(form.neighborhood || '').trim()) {
+            setError('La provincia, la localidad y el barrio son obligatorios.');
             return;
         }
         setLoading(true);
@@ -328,10 +328,11 @@ export const EditProfileModal = ({ isOpen, onClose }) => {
                                     required
                                 />
                                 <Input
-                                    label="Barrio"
+                                    label="Barrio *"
                                     placeholder="Ej: Villa Crespo..."
                                     value={form.neighborhood || ''}
                                     onChange={set('neighborhood')}
+                                    required
                                 />
                             </div>
                             <Input

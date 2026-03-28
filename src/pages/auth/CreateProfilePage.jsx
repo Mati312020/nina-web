@@ -46,8 +46,8 @@ export const CreateProfilePage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!formData.province || !formData.locality) {
-            setError('La provincia y la localidad son obligatorias.');
+        if (!formData.province || !formData.locality || !formData.neighborhood.trim()) {
+            setError('La provincia, la localidad y el barrio son obligatorios.');
             return;
         }
         setLoading(true);
@@ -58,7 +58,7 @@ export const CreateProfilePage = () => {
                 phone: formData.phone,
                 province: formData.province,
                 locality: formData.locality,
-                neighborhood: formData.neighborhood || null,
+                neighborhood: formData.neighborhood,
                 address: formData.address || null,
                 bio: formData.bio || null,
                 profile_image_url: formData.profile_image_url || null,
@@ -222,11 +222,12 @@ export const CreateProfilePage = () => {
                                 required
                             />
                             <Input
-                                label="Barrio (opcional)"
+                                label="Barrio *"
                                 name="neighborhood"
                                 placeholder="Ej: Villa Crespo, San Telmo..."
                                 value={formData.neighborhood}
                                 onChange={handleChange}
+                                required
                             />
                         </div>
 
