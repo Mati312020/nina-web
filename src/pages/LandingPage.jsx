@@ -259,11 +259,14 @@ const WebFeature = ({ icon, text, color = 'primary' }) => (
    ══════════════════════════════════════════════════════════ */
 const ChromeIcon = () => (
     <svg viewBox="0 0 24 24" className="w-7 h-7 shrink-0" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="12" cy="12" r="10" fill="#fff"/>
-        <circle cx="12" cy="12" r="4.8" fill="#4285F4"/>
-        <path fill="#34A853" d="M12 7.2h8.6A10 10 0 0 1 12 22z"/>
-        <path fill="#FBBC05" d="M3.4 17.6A10 10 0 0 1 3.4 6.4L8.2 12z"/>
-        <path fill="#EA4335" d="M12 7.2H3.4A10 10 0 0 1 12 2z"/>
+        {/* 3 sectores de 120° exactos — puntos de unión: top-right(20.66,7), top-left(3.34,7), bottom(12,22) */}
+        <path fill="#EA4335" d="M12 12L20.66 7A10 10 0 0 0 3.34 7Z"/>
+        <path fill="#FBBC05" d="M12 12L3.34 7A10 10 0 0 1 12 22Z"/>
+        <path fill="#34A853" d="M12 12L12 22A10 10 0 0 1 20.66 7Z"/>
+        {/* Anillo blanco para efecto donut */}
+        <circle cx="12" cy="12" r="6.5" fill="white"/>
+        {/* Centro azul */}
+        <circle cx="12" cy="12" r="5" fill="#4285F4"/>
     </svg>
 );
 
